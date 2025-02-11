@@ -18,6 +18,9 @@
 // Policy file for lucene tests. Please keep minimal and avoid wildcards.
 
 grant {
+  // faiss
+  permission java.lang.RuntimePermission "loadLibrary./Users/navneev/workplace/faiss/build/c_api/libfaiss_c.dylib";
+
   // let TestIndexWriterOnJRECrash fork its jvm
   permission java.io.FilePermission "${java.home}${/}-", "read,execute";
 

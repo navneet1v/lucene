@@ -25,3 +25,27 @@ dependencies {
   moduleApi project(':lucene:facet')
   moduleTestImplementation project(':lucene:test-framework')
 }
+
+sourceSets {
+  main {
+    java {
+      srcDir("src/java22")
+    }
+  }
+}
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs += '--enable-preview'
+
+}
+
+tasks.withType(Test) {
+  jvmArgs += '--enable-preview'
+  jvmArgs += '--enable-native-access=ALL-UNNAMED'
+}
+
+tasks.withType(JavaExec) {
+  jvmArgs += '--enable-preview'
+  jvmArgs += '--enable-native-access=ALL-UNNAMED'
+}
+

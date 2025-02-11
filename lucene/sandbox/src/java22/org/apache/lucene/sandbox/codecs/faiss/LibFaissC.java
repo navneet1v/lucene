@@ -42,7 +42,7 @@ public final class LibFaissC {
 
   static {
     try {
-      System.loadLibrary("faiss_c");
+      System.load("/Users/navneev/workplace/faiss/build/c_api/libfaiss_c.dylib");
     } catch (UnsatisfiedLinkError e) {
       throw new RuntimeException(
           "Shared library not found, build the Faiss C_API from https://github.com/facebookresearch/faiss/blob/main/c_api/INSTALL.md "
