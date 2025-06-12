@@ -22,7 +22,8 @@ import org.apache.lucene.codecs.lucene99.Lucene99Codec;
 module org.apache.lucene.core {
   requires java.logging;
   requires static jdk.unsupported; // this is optional but without it MMapDirectory won't be enabled
-  requires static jdk.management; // this is optional but explicit declaration is recommended
+  requires static jdk.management;
+    requires jdk.incubator.vector; // this is optional but explicit declaration is recommended
 
   exports org.apache.lucene.analysis.standard;
   exports org.apache.lucene.analysis.tokenattributes;

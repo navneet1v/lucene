@@ -23,3 +23,11 @@ dependencies {
   moduleTestImplementation project(':lucene:codecs')
   moduleTestImplementation project(':lucene:test-framework')
 }
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/java21")
+        }
+    }
+}
