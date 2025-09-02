@@ -467,4 +467,81 @@ public final class IOUtils {
         collection.stream().filter(Objects::nonNull).map(t -> (Closeable) () -> consumer.accept(t))
             ::iterator);
   }
+
+  /**
+   * Closes all given <code>Closeable</code>s, suppressing all thrown Throwables in {@code ex}. Even
+   * if a {@link Error} is thrown all given closeable are closed.
+   *
+   * @see #closeWhileHandlingException(Closeable...)
+   */
+  public static void closeWhileSuppressingExceptions(Throwable ex, Closeable... objects) {
+    closeWhileSuppressingExceptions(ex, Arrays.asList(objects));
+  }
+
+  /**
+   * Closes all given <code>Closeable</code>s, suppressing all thrown Throwables in {@code ex}. Even
+   * if a {@link Error} is thrown all given closeable are closed.
+   *
+   * @see #closeWhileHandlingException(Closeable...)
+   */
+  public static void closeWhileSuppressingExceptions(
+      Throwable ex, Iterable<? extends Closeable> objects) {
+    Error firstError = ex instanceof Error err ? err : null;
+
+    for (Closeable object : objects) {
+      try {
+        if (object != null) {
+          object.close();
+        }
+      } catch (Throwable e) {
+        if (firstError == null && e instanceof Error err) {
+          // don't try and suppress it - this Error should be the thing that is thrown
+          firstError = err;
+        } else {
+          ex.addSuppressed(e);
+        }
+      }
+    }
+
+    if (firstError != null) {
+      throw firstError;
+    }
+  }
+
+  /**
+   * Deletes all given files from {@code dir}, suppressing all thrown Throwables in {@code ex}.
+   *
+   * <p>Note that the files might not be deleted if an Error is thrown.
+   */
+  public static void deleteFilesSuppressingExceptions(
+      Throwable ex, Directory dir, Collection<String> files) {
+    Error firstError = ex instanceof Error err ? err : null;
+
+    for (String name : files) {
+      try {
+        dir.deleteFile(name);
+      } catch (Throwable d) {
+        if (firstError == null && d instanceof Error err) {
+          // don't try and suppress it - this Error should be the thing that is thrown
+          firstError = err;
+        } else {
+          ex.addSuppressed(d);
+        }
+      }
+    }
+
+    if (firstError != null) {
+      throw firstError;
+    }
+  }
+
+  /**
+   * Deletes all given files from {@code dir}, suppressing all thrown Throwables in {@code ex}.
+   *
+   * <p>Note that the files might not be deleted if an Error is thrown.
+   */
+  public static void deleteFilesSuppressingExceptions(
+      Throwable ex, Directory dir, String... files) {
+    deleteFilesSuppressingExceptions(ex, dir, Arrays.asList(files));
+  }
 }
