@@ -590,6 +590,10 @@ public class Lucene104ScalarQuantizedVectorsWriter extends FlatVectorsWriter {
         IOUtils.deleteFilesIgnoringExceptions(
             segmentWriteState.directory, tempScoreQuantizedVectorData.getName());
       }
+      if (tempScoreQuantizedVectorData != null) {
+        IOUtils.deleteFilesIgnoringExceptions(
+            segmentWriteState.directory, tempScoreQuantizedVectorData.getName());
+      }
       throw t;
     }
   }
