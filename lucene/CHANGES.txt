@@ -14,6 +14,9 @@ API Changes
   IDs at once, in particular by taking advantage of the new
   NumericDocValues#longValues API. (Adrien Grand)
 
+* GITHUB#15234: Remove unused method which does unsafe XML parsing.
+  (Uwe Schindler, Isaac David)
+
 New Features
 ---------------------
 * GITHUB#15328: VectorSimilarityFunction.getValues() now implements doubleVal allowing its
@@ -32,11 +35,18 @@ New Features
   `Lucene104HnswScalarQuantizedVectorsFormat` replaces the now legacy `Lucene99HnswScalarQuantizedVectorsFormat`
    (Trevor McCulloch)
 
+ * GITHUB#15271: Extend `Lucene104ScalarQuantizedVectorsFormat` and `Lucene104HnswScalarQuantizedVectorsFormat` to
+   allow asymmetric quantization. The initially supported bits are single bit with 4 bit queries. This is a replacement
+   for the now legacy `Lucene102HnswBinaryQuantizedVectorsFormat` and `Lucene102BinaryQuantizedVectorsFormat`.
+    (Ben Trent)
+
 Improvements
 ---------------------
 * GITHUB#15148: Add support uint8 distance and allow 8 bit scalar quantization (Trevor McCulloch)
 
 * GITHUB#15184: Refactoring internal HNSWGraphBuilder's APIs and avoid creating new scorer for each call (Patrick Zhai)
+
+* GITHUB#15332: Add PhraseQuery.Builder.setMaxTerms() method to limit the maximum number of terms and excessive memory use (linyunanit)
 
 Optimizations
 ---------------------
@@ -51,19 +61,53 @@ Optimizations
 * GITHUB#15151: Use `SimScorer#score` bulk API to compute impact scores per
   block of postings. (Adrien Grand)
 
+* GITHUB#15167: FirstPassGroupingCollector supports ignoring docs without group field (Binlong Gao)
+
 * GITHUB#15160: Increased the size used for blocks of postings from 128 to 256.
   This gives a noticeable speedup to many queries. (Adrien Grand)
 
+* GITHUB#15198: Optimize ForUtil.expand8 using the JDK Vector API. (Ramakrishna Chilaka)
+
 * GITHUB#14863: Perform scoring for 4, 7, 8 bit quantized vectors off-heap. (Kaival Parikh)
+
+* GITHUB#15261: Implement longValues for MultiFieldNormValues to speedup CombinedQuery (Ge Song)
 
 Bug Fixes
 ---------------------
 * GITHUB#14161: PointInSetQuery's constructor now throws IllegalArgumentException
   instead of UnsupportedOperationException when values are out of order. (Shubham Sharma)
 
+* GITHUB#15205: Fixes regression introduced in GITHUB#13980 where polygons might fail to tessellate
+  because the hole bridge is coplanar with the polygon vertex. The fix changes the strategy for
+  removing co-planar points to do it once after all holes are removed instead of doing it for each
+  removed hole.
+
+* GITHUB#15213: Don't normalize centroids with zero samples, which caused divide-by-zero. (Mike Sokolov)
+
+* GITHUB#15319: Fix potential hang in initialisation of TermsEnum and BaseTermsEnum (Chris Hegarty)
+
+* GITHUB#15334: Fix NPE for MemoryIndex when using nearest neighbor search. MemoryIndex does not support
+  nearest neighbor search, but it should not throw an NPE (Ben Trent)
+
 Other
 ---------------------
-(No changes)
+* GITHUB#15237: Fix SmartChinese to only deserialize dictionary data from classpath with a native array
+  filter applied and never cache dictionaries from custom locations. Also install a global deserialization
+  filter factory that disallows any unprotected deserialization while running tests.
+  Applications using SecurityManager now need to grant SerializablePermission("serialFilter")
+  to the analysis-smartcn module. (Uwe Schindler, Isaac David)
+
+Build
+---------------------
+* Upgrade forbiddenapis to version 3.10.  (Uwe Schindler)
+
+======================= Lucene 10.3.1 =======================
+
+Bug Fixes
+---------------------
+* GITHUB#15263: Fix the Impact returned from Lucene103PostingsReader when frequencies
+  are not indexed. It was returning a sub-optimal frequency in that case affecting
+  scoring which might led to performance issues. (Ignacio Vera)
 
 ======================= Lucene 10.3.0 =======================
 
@@ -535,6 +579,8 @@ Other
 
 * GITHUB#14116 Use CDL to block threads to avoid flaky tests. (Ao Li)
 
+* GITHUB#14091: Cover all DataType. (Lu Xugang)
+
 * GITHUB#14130: Upgrade OpenNLP from 2.3.2 to 2.5.3, which transitively upgrades Slf4j
   from 1.7.36 to 2.0.16. (Michael Froh)
 
@@ -545,8 +591,6 @@ Other
 * GITHUB#14386: Bump analysis/icu's icu4j dependency to 77.1 (Robert Muir)
 
 * GITHUB#14388: Bump expression's antlr dependency to 4.13.2 (Dawid Weiss, Robert Muir)
-
-* GITHUB#14091: Cover all DataType. (Lu Xugang)
 
 ======================= Lucene 10.1.0 =======================
 
@@ -980,6 +1024,24 @@ Build
 * GITHUB#13649: Fix eclipse ide settings generation #13649 (Uwe Schindler, Dawid Weiss)
 
 * GITHUB#13698: Upgrade to gradle 8.10 (Dawid Weiss)
+
+======================== Lucene 9.12.3 =======================
+
+Bug Fixes
+---------------------
+
+* GITHUB#14858, GITHUB#12146: Simplify max score for kNN vector queries, ensuring vector queries handle advanceShallow correctly (Julie Tibshirani)
+
+* GITHUB#15074: Fix to use READONCE when reading segment infos (Chris Hegarty)
+
+* GITHUB#15078: Reduce the default RefCountedSharedArena.DEFAULT_MAX_PERMITS to 64. To restore previous behavior set `-Dorg.apache.lucene.store.MMapDirectory.sharedArenaMaxPermits=1024`. (Chris Hegarty)
+
+* GITHUB#15106: Fix infinite loop when RefCountedSharedArena's underlying Arena#close fails due to concurrent usage of segments. (Uwe Schindler)
+
+* GITHUB#15205: Fixes regression introduced in GITHUB#13980 where polygons might fail to tessellate because the hole bridge is coplanar with the polygon vertex. The fix changes the strategy for removing co-planar points to do it once after all holes are removed instead of doing it for each removed hole
+
+* GITHUB#14627, GITHUB#11920, GITHUB#14706: Fix mock filesystem WindowsFS to also work on Windows. This is required to make tests pass on Windows 11 which no longer has all limitations of previous Windows versions. (Uwe Schindler)
+
 
 ======================== Lucene 9.12.2 =======================
 
