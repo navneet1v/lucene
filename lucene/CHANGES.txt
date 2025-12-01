@@ -17,6 +17,17 @@ API Changes
 * GITHUB#15234: Remove unused method which does unsafe XML parsing.
   (Uwe Schindler, Isaac David)
 
+* GITHUB#14515: IndexWriter.forceMergeDeletes() now returns MergePolicy.MergeObserver,
+  allowing applications to monitor merge progress and wait for completion. The observer
+  provides methods to query merge count, check completion status, and wait synchronously
+  (with optional timeout) or asynchronously via CompletableFuture. Backward compatible -
+  existing code that ignores the return value works unchanged. (Salvatore Campagna)
+
+* GITHUB#15422: Add a new method in DirectWriter to compute how many bytes are written for encoding a number of values using a number of
+  bits per value. (Ignacio Vera)
+
+* GITHUB##15428: Add support for ExecutorServices to be passed into DirectoryReader.open() and DirectoryReader.openIfChanged() APIs (Bryce Kane)
+
 New Features
 ---------------------
 * GITHUB#15328: VectorSimilarityFunction.getValues() now implements doubleVal allowing its
@@ -53,6 +64,8 @@ Improvements
 
 * GITHUB#15332: Add PhraseQuery.Builder.setMaxTerms() method to limit the maximum number of terms and excessive memory use (linyunanit)
 
+* GITHUB#15425: Refactoring internal HnswGraph.NodesIterator to avoid unneeded copying and sorting (Mike Sokolov)
+
 Optimizations
 ---------------------
 * GITHUB#15140: Optimize TopScoreDocCollector with TernaryLongHeap for improved performance over Binary-LongHeap. (Ramakrishna Chilaka)
@@ -82,6 +95,14 @@ Optimizations
 
 * GITHUB#14963: Bypass HNSW graph building for tiny segments. (Shubham Chaudhary, Ben Trent)
 
+* GITHUB#13084: Implement sparse LiveDocs format to reduce memory usage by up to 8x for segments with <=1% deletions. (Salvatore Campagna)
+
+* GITHUB#15397: NumericComparator: immediately check whether a segment is competitive with the recorded bottom (Martijn van Groningen)
+
+# GITHUB#15303: Speed up NumericUtils#{add,subtract} by operating on integers instead of bytes. (Kaival Parikh)
+
+* GITHUB#15003: Avoid reconstructing HNSW graph during merging (Pulkit Gupta)
+
 Bug Fixes
 ---------------------
 * GITHUB#14161: PointInSetQuery's constructor now throws IllegalArgumentException
@@ -99,6 +120,9 @@ Bug Fixes
 * GITHUB#15334: Fix NPE for MemoryIndex when using nearest neighbor search. MemoryIndex does not support
   nearest neighbor search, but it should not throw an NPE (Ben Trent)
 
+* GITHUB#15380: Fix potential EOF introduced by optimized filter iterations in MaxScoreBulkScorer. The
+  approximation and the match verification could get out of sync, resulting in an EOFException. (Ben Trent)
+
 Other
 ---------------------
 * GITHUB#15237: Fix SmartChinese to only deserialize dictionary data from classpath with a native array
@@ -107,9 +131,18 @@ Other
   Applications using SecurityManager now need to grant SerializablePermission("serialFilter")
   to the analysis-smartcn module. (Uwe Schindler, Isaac David)
 
+* GITHUB#15431: Index open performs version check on each segment, ignores indexCreatedVersionMajor (Rahul Goswami, Mike Sokolov)
+
 Build
 ---------------------
 * Upgrade forbiddenapis to version 3.10.  (Uwe Schindler)
+
+======================= Lucene 10.3.2 =======================
+
+Bug Fixes
+---------------------
+* GITHUB#15380: Fix potential EOF introduced by optimized filter iterations in MaxScoreBulkScorer. The
+  approximation and the match verification could get out of sync, resulting in an EOFException. (Ben Trent)
 
 ======================= Lucene 10.3.1 =======================
 
