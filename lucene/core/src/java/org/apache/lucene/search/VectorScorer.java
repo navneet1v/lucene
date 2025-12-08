@@ -30,7 +30,6 @@ import org.apache.lucene.util.hnsw.RandomVectorScorer;
  * @lucene.experimental
  */
 public interface VectorScorer {
-  int DEFAULT_BULK_BATCH_SIZE = 64;
 
   /**
    * Compute the score for the current document ID.
@@ -53,7 +52,7 @@ public interface VectorScorer {
    * Additionally, if the iterators are unpositioned (docID() == -1), this method should position
    * them to the first document.
    *
-   * @param matchingDocs Optional filter to iterate over the documents to score
+   * @param matchingDocs the documents to score
    * @return a {@link Bulk} scorer
    * @throws IOException if an exception occurs during bulk scorer creation
    * @lucene.experimental
@@ -66,13 +65,12 @@ public interface VectorScorer {
     if (iterator.docID() == -1) {
       iterator.nextDoc();
     }
-    return (upTo, liveDocs, buffer) -> {
-      assert upTo > 0;
-      buffer.growNoCopy(DEFAULT_BULK_BATCH_SIZE);
+    return (nextCount, liveDocs, buffer) -> {
+      buffer.growNoCopy(nextCount);
       int size = 0;
       float maxScore = Float.NEGATIVE_INFINITY;
       for (int doc = iterator.docID();
-          doc < upTo && size < DEFAULT_BULK_BATCH_SIZE;
+          doc != DocIdSetIterator.NO_MORE_DOCS && size < nextCount;
           doc = iterator.nextDoc()) {
         if (liveDocs == null || liveDocs.get(doc)) {
           buffer.docs[size] = doc;
@@ -93,16 +91,16 @@ public interface VectorScorer {
    */
   interface Bulk {
     /**
-     * Score docs ids iterating to upTo documents, store the results in the provided buffer. Behaves
-     * similarly to {@link Scorer#nextDocsAndScores(int, Bits, DocAndFloatFeatureBuffer)}
+     * Score up to nextCount documents, store the results in the provided buffer. Behaves similarly
+     * to {@link Scorer#nextDocsAndScores(int, Bits, DocAndFloatFeatureBuffer)}
      *
-     * @param upTo the maximum doc ID to score
+     * @param nextCount the maximum number of documents to score
      * @param liveDocs the live docs, or null if all docs are live
      * @param buffer the buffer to store the results
      * @return the max score of the scored documents
      * @throws IOException if an exception occurs during scoring
      */
-    float nextDocsAndScores(int upTo, Bits liveDocs, DocAndFloatFeatureBuffer buffer)
+    float nextDocsAndScores(int nextCount, Bits liveDocs, DocAndFloatFeatureBuffer buffer)
         throws IOException;
 
     static Bulk fromRandomScorerDense(
@@ -113,15 +111,14 @@ public interface VectorScorer {
           matchingDocs == null
               ? iterator
               : ConjunctionUtils.createConjunction(List.of(matchingDocs, iterator), List.of());
-      return (upTo, liveDocs, buffer) -> {
-        assert upTo > 0;
+      return (nextCount, liveDocs, buffer) -> {
         if (matches.docID() == -1) {
           matches.nextDoc();
         }
-        buffer.growNoCopy(DEFAULT_BULK_BATCH_SIZE);
+        buffer.growNoCopy(nextCount);
         int size = 0;
         for (int doc = matches.docID();
-            doc < upTo && size < DEFAULT_BULK_BATCH_SIZE;
+            doc != DocIdSetIterator.NO_MORE_DOCS && size < nextCount;
             doc = matches.nextDoc()) {
           if (liveDocs == null || liveDocs.get(doc)) {
             buffer.docs[size++] = doc;
@@ -144,17 +141,16 @@ public interface VectorScorer {
         int[] docIds = new int[0];
 
         @Override
-        public float nextDocsAndScores(int upTo, Bits liveDocs, DocAndFloatFeatureBuffer buffer)
-            throws IOException {
-          assert upTo > 0;
+        public float nextDocsAndScores(
+            int nextCount, Bits liveDocs, DocAndFloatFeatureBuffer buffer) throws IOException {
           if (matches.docID() == -1) {
             matches.nextDoc();
           }
-          buffer.growNoCopy(DEFAULT_BULK_BATCH_SIZE);
-          docIds = ArrayUtil.growNoCopy(docIds, DEFAULT_BULK_BATCH_SIZE);
+          buffer.growNoCopy(nextCount);
+          docIds = ArrayUtil.growNoCopy(docIds, nextCount);
           int size = 0;
           for (int doc = matches.docID();
-              doc < upTo && size < DEFAULT_BULK_BATCH_SIZE;
+              doc != DocIdSetIterator.NO_MORE_DOCS && size < nextCount;
               doc = matches.nextDoc()) {
             if (liveDocs == null || liveDocs.get(doc)) {
               buffer.docs[size] = iterator.index();
