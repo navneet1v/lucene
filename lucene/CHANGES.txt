@@ -28,6 +28,8 @@ API Changes
 
 * GITHUB##15428: Add support for ExecutorServices to be passed into DirectoryReader.open() and DirectoryReader.openIfChanged() APIs (Bryce Kane)
 
+* GITHUB#15501: Introduce optional access to backing vector values from the scorer  (Chris Hegarty)
+
 New Features
 ---------------------
 * GITHUB#15328: VectorSimilarityFunction.getValues() now implements doubleVal allowing its
