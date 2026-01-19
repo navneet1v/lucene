@@ -18,6 +18,7 @@
 package org.apache.lucene.util.hnsw;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 import org.apache.lucene.index.KnnVectorValues;
 import org.apache.lucene.util.Bits;
 
@@ -26,6 +27,9 @@ import org.apache.lucene.util.Bits;
  * class isn't thread-safe and should be used by a single thread.
  */
 public interface RandomVectorScorer {
+
+  Logger LOG = Logger.getLogger(RandomVectorScorer.class.getName());
+
   /**
    * Returns the score between the query and the provided node.
    *
@@ -51,6 +55,10 @@ public interface RandomVectorScorer {
       max = Math.max(max, scores[i]);
     }
     return max;
+  }
+
+  default void prefetch(int[] prefetchOrds) throws IOException {
+    LOG.info("Prefetch not implemented.");
   }
 
   /**

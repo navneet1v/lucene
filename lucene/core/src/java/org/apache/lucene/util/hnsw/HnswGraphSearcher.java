@@ -338,6 +338,9 @@ public class HnswGraphSearcher extends AbstractHnswGraphSearcher {
 
       numNodes = (int) Math.min(numNodes, results.visitLimit() - results.visitedCount());
       results.incVisitedCount(numNodes);
+      if(numNodes > 0) {
+        scorer.prefetch(bulkNodes);
+      }
       if (numNodes > 0
           && scorer.bulkScore(bulkNodes, bulkScores, numNodes)
               > results.minCompetitiveSimilarity()) {

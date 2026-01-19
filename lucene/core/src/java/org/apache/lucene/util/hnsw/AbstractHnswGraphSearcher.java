@@ -94,6 +94,7 @@ abstract class AbstractHnswGraphSearcher {
       throws IOException {
     assert eps != null && eps.length > 0;
     assert scores != null && scores.length >= eps.length;
+    scorer.prefetch(eps);
     scorer.bulkScore(eps, scores, eps.length);
     results.incVisitedCount(eps.length);
     for (int i = 0; i < eps.length; i++) {

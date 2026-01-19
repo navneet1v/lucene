@@ -82,6 +82,17 @@ public abstract class OffHeapByteVectorValues extends ByteVectorValues implement
   }
 
   @Override
+  public void prefetch(final int[] ordsToPrefetch) throws IOException {
+    if (ordsToPrefetch == null) return;
+
+    // 1. calculate offset and prefetch immediately
+    for (int i = 0; i < ordsToPrefetch.length; i++) {
+      long offset = (long) ordsToPrefetch[i] * byteSize;
+      slice.prefetch(offset, byteSize);
+    }
+  }
+
+  @Override
   public IndexInput getSlice() {
     return slice;
   }

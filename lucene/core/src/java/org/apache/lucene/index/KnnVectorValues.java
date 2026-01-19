@@ -17,6 +17,7 @@
 package org.apache.lucene.index;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 import org.apache.lucene.document.KnnByteVectorField;
 import org.apache.lucene.document.KnnFloatVectorField;
 import org.apache.lucene.search.DocIdSetIterator;
@@ -29,6 +30,8 @@ import org.apache.lucene.util.Bits;
  * @lucene.experimental
  */
 public abstract class KnnVectorValues {
+
+  private final Logger LOG = Logger.getLogger(KnnVectorValues.class.getName());
 
   /** Return the dimension of the vectors */
   public abstract int dimension();
@@ -47,6 +50,15 @@ public abstract class KnnVectorValues {
    */
   public int ordToDoc(int ord) {
     return ord;
+  }
+
+  /**
+   * Prefetches the given ordinals into the page cache.
+   *
+   * @param ordsToPrefetch a list of ordinals to prefetch
+   */
+  public void prefetch(final int[] ordsToPrefetch) throws IOException {
+    LOG.info("Prefetch not implemented.");
   }
 
   /**
