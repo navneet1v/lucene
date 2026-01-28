@@ -284,6 +284,8 @@ public class HnswGraphSearcher extends AbstractHnswGraphSearcher {
       bulkScores = new float[graph.maxConn() * 2];
     }
 
+    // TODO: we should do it only for non visited endpoints.
+    scorer.prefetch(eps);
     for (int ep : eps) {
       if (visited.getAndSet(ep) == false) {
         if (results.earlyTerminated()) {
@@ -337,6 +339,7 @@ public class HnswGraphSearcher extends AbstractHnswGraphSearcher {
 
       if (numNodes > 0) {
         numNodes = (int) Math.min((long) numNodes, results.visitLimit() - results.visitedCount());
+        scorer.prefetch(bulkNodes);
         scorer.bulkScore(bulkNodes, bulkScores, numNodes);
         results.incVisitedCount(numNodes);
         for (int i = 0; i < numNodes; i++) {
