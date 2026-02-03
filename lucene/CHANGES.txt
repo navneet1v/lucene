@@ -179,6 +179,10 @@ Optimizations
 
 Bug Fixes
 ---------------------
+* GITHUB#15442: Preserve boost values when merging overlapping phrases in
+  FastVectorHighlighter so highlight scoring fully reflects query boosts.
+  (Yang Feng)
+
 * GITHUB#14161: PointInSetQuery's constructor now throws IllegalArgumentException
   instead of UnsupportedOperationException when values are out of order. (Shubham Sharma)
 
@@ -203,6 +207,12 @@ Bug Fixes
 
 * GITHUB#14616 : Fix mis-interpretation of `maxNumBytes` in FuzzySet#createSetBasedOnMaxMemory (Greg Miller)
 
+* GITHUB#15554: Fix tessellator failure by preferring the shared vertex that is the leftmost vertex of the hole
+  (Ignacio Vera)
+
+* GITHUB#15553: Fix MergedByteVectorValues lastOrd behavior to enable partitioning of vector values
+(Finn Roblin, Dooyong Kim)
+
 Other
 ---------------------
 * GITHUB#15237: Fix SmartChinese to only deserialize dictionary data from classpath with a native array
@@ -222,6 +232,8 @@ Other
 
 * GITHUB#15341: Align float vectors on disk to 64 bytes, for optimal performance on Arm Neoverse
   machines (including vectors inside CFS files). (Mike McCandless, Kaival Parikh)
+
+* GITHUB#15619: Update documentation in Lucene104PostingsFormat. with 259 documents, the first 256 document ids should be  encoded as one packed block (Lyon-NEU)
 
 Build
 ---------------------
