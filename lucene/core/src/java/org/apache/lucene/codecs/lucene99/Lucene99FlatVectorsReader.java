@@ -182,6 +182,17 @@ public final class Lucene99FlatVectorsReader extends FlatVectorsReader {
     CodecUtil.checksumEntireFile(vectorData);
   }
 
+  //    @Override
+  //    public void prefetch(int[] ordsToPrefetch) {
+  //        if (ordsToPrefetch == null) return;
+  //
+  //        // 1. calculate offset and prefetch immediately
+  //        for (int i = 0; i < ordsToPrefetch.length; i++) {
+  //          long offset = (long) ordsToPrefetch[i] * byteSize;
+  //          slice.prefetch(offset, byteSize);
+  //        }
+  //    }
+
   @Override
   public FlatVectorsReader getMergeInstance() throws IOException {
     // Update the read advice since vectors are guaranteed to be accessed sequentially for merge

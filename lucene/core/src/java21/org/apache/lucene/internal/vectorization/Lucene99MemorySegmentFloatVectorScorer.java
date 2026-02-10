@@ -108,6 +108,12 @@ abstract sealed class Lucene99MemorySegmentFloatVectorScorer
     }
   }
 
+  @Override
+  public void prefetch(int[] prefetchOrds) throws IOException {
+    LOG.info("Prefetching docs for Lucene99MemorySegmentFloatVectorScorer....");
+    values.prefetch(prefetchOrds);
+  }
+
   abstract void vectorOp(
       MemorySegment seg,
       float[] scores,

@@ -18,6 +18,7 @@
 package org.apache.lucene.codecs.hnsw;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 import org.apache.lucene.codecs.KnnVectorsReader;
 import org.apache.lucene.search.AcceptDocs;
 import org.apache.lucene.search.KnnCollector;
@@ -39,6 +40,8 @@ import org.apache.lucene.util.hnsw.RandomVectorScorer;
  * @lucene.experimental
  */
 public abstract class FlatVectorsReader extends KnnVectorsReader implements Accountable {
+
+  private final Logger LOG = Logger.getLogger(FlatVectorsReader.class.getName());
 
   /** Scorer for flat vectors */
   protected final FlatVectorsScorer vectorScorer;
@@ -88,6 +91,13 @@ public abstract class FlatVectorsReader extends KnnVectorsReader implements Acco
    */
   public abstract RandomVectorScorer getRandomVectorScorer(String field, byte[] target)
       throws IOException;
+
+  /**
+   * @param ords array of ordinals to prefetch
+   */
+  public void prefetch(int[] ords) {
+    LOG.info("Prefetching vectors not enabled for FlatVectorReader");
+  }
 
   /**
    * Returns an instance optimized for merging. This instance may only be consumed in the thread

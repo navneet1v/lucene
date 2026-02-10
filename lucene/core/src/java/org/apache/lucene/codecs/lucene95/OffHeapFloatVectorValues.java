@@ -85,6 +85,22 @@ public abstract class OffHeapFloatVectorValues extends FloatVectorValues impleme
     return value;
   }
 
+  @Override
+  public void prefetch(final int[] ordsToPrefetch) throws IOException {
+    if (ordsToPrefetch == null) return;
+
+    // 1. calculate offset and prefetch immediately
+    for (int i = 0; i < ordsToPrefetch.length; i++) {
+      // It is not necessary that full array of ordToPrefetch has ordinals. Once we have -1 we are
+      // terminating.
+      if (ordsToPrefetch[i] == -1) {
+        return;
+      }
+      long offset = (long) ordsToPrefetch[i] * byteSize;
+      slice.prefetch(offset, byteSize);
+    }
+  }
+
   public static OffHeapFloatVectorValues load(
       VectorSimilarityFunction vectorSimilarityFunction,
       FlatVectorsScorer flatVectorsScorer,
