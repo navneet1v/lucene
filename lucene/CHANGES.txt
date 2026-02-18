@@ -190,7 +190,7 @@ API Changes
 
 New Features
 ---------------------
-(No changes)
+* GITHUB#15722: Add the ability to do prefetch and do prefetch during vector search (Navneet Verma)
 
 Improvements
 ---------------------

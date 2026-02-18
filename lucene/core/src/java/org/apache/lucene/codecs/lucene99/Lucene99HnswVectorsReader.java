@@ -362,6 +362,7 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
           }
           ords[numOrds++] = i;
           if (numOrds == ords.length) {
+            scorer.prefetch(ords, numOrds);
             knnCollector.incVisitedCount(numOrds);
             if (scorer.bulkScore(ords, scores, numOrds) > knnCollector.minCompetitiveSimilarity()) {
               for (int j = 0; j < numOrds; j++) {
@@ -375,6 +376,7 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
 
       if (numOrds > 0) {
         knnCollector.incVisitedCount(numOrds);
+        scorer.prefetch(ords, numOrds);
         if (scorer.bulkScore(ords, scores, numOrds) > knnCollector.minCompetitiveSimilarity()) {
           for (int j = 0; j < numOrds; j++) {
             knnCollector.collect(scorer.ordToDoc(ords[j]), scores[j]);

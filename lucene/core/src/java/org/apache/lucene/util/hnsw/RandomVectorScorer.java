@@ -54,6 +54,14 @@ public interface RandomVectorScorer {
   }
 
   /**
+   * Provide ability to prefetch the ordinals before doing scoring
+   *
+   * @param prefetchOrds array if ords to prefetch
+   * @throws IOException IOException that may happen during prefetch
+   */
+  default void prefetch(int[] prefetchOrds, int numOrds) throws IOException {}
+
+  /**
    * @return the maximum possible ordinal for this scorer
    */
   int maxOrd();

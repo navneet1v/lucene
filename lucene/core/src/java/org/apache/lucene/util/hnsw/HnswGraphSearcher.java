@@ -338,22 +338,25 @@ public class HnswGraphSearcher extends AbstractHnswGraphSearcher {
 
       numNodes = (int) Math.min(numNodes, results.visitLimit() - results.visitedCount());
       results.incVisitedCount(numNodes);
-      if (numNodes > 0
-          && scorer.bulkScore(bulkNodes, bulkScores, numNodes)
-              > results.minCompetitiveSimilarity()) {
-        for (int i = 0; i < numNodes; i++) {
-          int node = bulkNodes[i];
-          float score = bulkScores[i];
-          if (score >= minAcceptedSimilarity) {
-            candidates.add(node, score);
-            if (acceptOrds == null || acceptOrds.get(node)) {
-              if (results.collect(node, score)) {
-                float oldMinAcceptedSimilarity = minAcceptedSimilarity;
-                minAcceptedSimilarity = Math.nextUp(results.minCompetitiveSimilarity());
-                if (minAcceptedSimilarity > oldMinAcceptedSimilarity) {
-                  // we adjusted our minAcceptedSimilarity, so we should explore the next equivalent
-                  // if necessary
-                  shouldExploreMinSim = true;
+      if (numNodes > 0) {
+        scorer.prefetch(bulkNodes, numNodes);
+        if (scorer.bulkScore(bulkNodes, bulkScores, numNodes)
+            > results.minCompetitiveSimilarity()) {
+          for (int i = 0; i < numNodes; i++) {
+            int node = bulkNodes[i];
+            float score = bulkScores[i];
+            if (score >= minAcceptedSimilarity) {
+              candidates.add(node, score);
+              if (acceptOrds == null || acceptOrds.get(node)) {
+                if (results.collect(node, score)) {
+                  float oldMinAcceptedSimilarity = minAcceptedSimilarity;
+                  minAcceptedSimilarity = Math.nextUp(results.minCompetitiveSimilarity());
+                  if (minAcceptedSimilarity > oldMinAcceptedSimilarity) {
+                    // we adjusted our minAcceptedSimilarity, so we should explore the next
+                    // equivalent
+                    // if necessary
+                    shouldExploreMinSim = true;
+                  }
                 }
               }
             }
