@@ -2599,4 +2599,75 @@ public class TestPointQueries extends LuceneTestCase {
     w.close();
     dir.close();
   }
+
+  public void testTwoPhaseVisitorEnabledToggle() throws IOException {
+    assertFalse(PointRangeQuery.isTwoPhaseVisitorEnabled());
+
+    Directory dir = newDirectory();
+    IndexWriter w = new IndexWriter(dir, newIndexWriterConfig());
+    int numDocs = atLeast(100);
+    for (int i = 0; i < numDocs; i++) {
+      Document doc = new Document();
+      doc.add(new IntPoint("f", i));
+      w.addDocument(doc);
+    }
+    w.forceMerge(1);
+    IndexReader r = DirectoryReader.open(w);
+    w.close();
+    IndexSearcher searcher = newSearcher(r);
+
+    Query query = IntPoint.newRangeQuery("f", 10, 50);
+    int expectedCount = 41;
+
+    // query with default (disabled)
+    assertEquals(expectedCount, searcher.count(query));
+
+    // enable and query again — same results expected
+    PointRangeQuery.setTwoPhaseVisitorEnabled(true);
+    try {
+      assertTrue(PointRangeQuery.isTwoPhaseVisitorEnabled());
+      assertEquals(expectedCount, searcher.count(query));
+    } finally {
+      PointRangeQuery.setTwoPhaseVisitorEnabled(false);
+    }
+
+    assertFalse(PointRangeQuery.isTwoPhaseVisitorEnabled());
+
+    r.close();
+    dir.close();
+  }
+
+  public void testTwoPhaseVisitorEnabledInverseRange() throws IOException {
+    Directory dir = newDirectory();
+    IndexWriter w = new IndexWriter(dir, newIndexWriterConfig());
+    int numDocs = atLeast(10 * BKDConfig.DEFAULT_MAX_POINTS_IN_LEAF_NODE);
+    for (int i = 0; i < numDocs; i++) {
+      Document doc = new Document();
+      doc.add(new IntPoint("f", i));
+      w.addDocument(doc);
+    }
+    w.forceMerge(1);
+    IndexReader r = DirectoryReader.open(w);
+    w.close();
+    IndexSearcher searcher = newSearcher(r);
+
+    // range covering most docs triggers inverse visitor path
+    int[] low = new int[] {1};
+    int[] high = new int[] {numDocs - 2};
+    Query query = IntPoint.newRangeQuery("f", low, high);
+    int expectedCount = numDocs - 2;
+
+    int countDisabled = searcher.count(query);
+    assertEquals(expectedCount, countDisabled);
+
+    PointRangeQuery.setTwoPhaseVisitorEnabled(true);
+    try {
+      assertEquals(countDisabled, searcher.count(query));
+    } finally {
+      PointRangeQuery.setTwoPhaseVisitorEnabled(false);
+    }
+
+    r.close();
+    dir.close();
+  }
 }

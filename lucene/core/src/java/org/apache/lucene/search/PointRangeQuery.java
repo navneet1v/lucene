@@ -36,6 +36,7 @@ import org.apache.lucene.util.BitSetIterator;
 import org.apache.lucene.util.DocIdSetBuilder;
 import org.apache.lucene.util.FixedBitSet;
 import org.apache.lucene.util.IntsRef;
+import org.apache.lucene.util.bkd.BKDReader.BaseTwoPhaseIntersectVisitor;
 
 /**
  * Abstract class for range queries against single or multidimensional points such as {@link
@@ -147,6 +148,51 @@ public abstract class PointRangeQuery extends Query {
       }
 
       private IntersectVisitor getIntersectVisitor(DocIdSetBuilder result) {
+        if (isTwoPhaseVisitorEnabled()) {
+          return new BaseTwoPhaseIntersectVisitor(BaseTwoPhaseIntersectVisitor.getGlobalPrefetchMode()) {
+            DocIdSetBuilder.BulkAdder adder;
+
+            @Override
+            public void grow(int count) {
+              adder = result.grow(count);
+            }
+
+            @Override
+            public void visit(int docID) {
+              adder.add(docID);
+            }
+
+            @Override
+            public void visit(DocIdSetIterator iterator) throws IOException {
+              adder.add(iterator);
+            }
+
+            @Override
+            public void visit(IntsRef ref) {
+              adder.add(ref);
+            }
+
+            @Override
+            public void visit(int docID, byte[] packedValue) {
+              if (matches(packedValue)) {
+                visit(docID);
+              }
+            }
+
+            @Override
+            public void visit(DocIdSetIterator iterator, byte[] packedValue) throws IOException {
+              if (matches(packedValue)) {
+                adder.add(iterator);
+              }
+            }
+
+            @Override
+            public Relation compare(byte[] minPackedValue, byte[] maxPackedValue) {
+              return relate(minPackedValue, maxPackedValue);
+            }
+          };
+        }
+
         return new IntersectVisitor() {
 
           DocIdSetBuilder.BulkAdder adder;
@@ -194,6 +240,60 @@ public abstract class PointRangeQuery extends Query {
 
       /** Create a visitor that sets documents that do NOT match the range. */
       private IntersectVisitor getInverseIntersectVisitor(FixedBitSet result, long[] cost) {
+        if (isTwoPhaseVisitorEnabled()) {
+          return new BaseTwoPhaseIntersectVisitor(BaseTwoPhaseIntersectVisitor.getGlobalPrefetchMode()) {
+            @Override
+            public void visit(int docID) {
+              result.set(docID);
+              cost[0]++;
+            }
+
+            @Override
+            public void visit(DocIdSetIterator iterator) throws IOException {
+              result.or(iterator);
+              cost[0] += iterator.cost();
+            }
+
+            @Override
+            public void visit(IntsRef ref) {
+              for (int i = ref.offset, to = ref.offset + ref.length; i < to; i++) {
+                result.set(ref.ints[i]);
+              }
+              cost[0] += ref.length;
+            }
+
+            @Override
+            public void visit(int docID, byte[] packedValue) {
+              if (matches(packedValue) == false) {
+                visit(docID);
+              }
+            }
+
+            @Override
+            public void visit(DocIdSetIterator iterator, byte[] packedValue) throws IOException {
+              if (matches(packedValue) == false) {
+                visit(iterator);
+              }
+            }
+
+            @Override
+            public Relation compare(byte[] minPackedValue, byte[] maxPackedValue) {
+              Relation relation = relate(minPackedValue, maxPackedValue);
+              switch (relation) {
+                case CELL_INSIDE_QUERY:
+                  // all points match, skip this subtree
+                  return Relation.CELL_OUTSIDE_QUERY;
+                case CELL_OUTSIDE_QUERY:
+                  // none of the points match, clear all documents
+                  return Relation.CELL_INSIDE_QUERY;
+                case CELL_CROSSES_QUERY:
+                default:
+                  return relation;
+              }
+            }
+          };
+        }
+
         return new IntersectVisitor() {
 
           @Override
@@ -647,5 +747,17 @@ public abstract class PointRangeQuery extends Query {
               + bytesPerDim);
     }
     return true;
+  }
+
+  private static volatile boolean twoPhaseVisitorEnabled = false;
+
+  /** Enable or disable the two-phase intersect visitor for point range queries. */
+  public static void setTwoPhaseVisitorEnabled(boolean enabled) {
+    twoPhaseVisitorEnabled = enabled;
+  }
+
+  /** Returns whether the two-phase intersect visitor is enabled. */
+  public static boolean isTwoPhaseVisitorEnabled() {
+    return twoPhaseVisitorEnabled;
   }
 }
