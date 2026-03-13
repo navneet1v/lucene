@@ -29,6 +29,12 @@ import org.apache.lucene.codecs.Codec;
 import org.apache.lucene.codecs.CompoundDirectory;
 import org.apache.lucene.codecs.FieldsProducer;
 import org.apache.lucene.codecs.KnnVectorsReader;
+import org.apache.lucene.codecs.LazyFieldsProducer;
+import org.apache.lucene.codecs.LazyKnnVectorsReader;
+import org.apache.lucene.codecs.LazyNormsProducer;
+import org.apache.lucene.codecs.LazyPointsReader;
+import org.apache.lucene.codecs.LazyStoredFieldsReader;
+import org.apache.lucene.codecs.LazyTermVectorsReader;
 import org.apache.lucene.codecs.NormsProducer;
 import org.apache.lucene.codecs.PointsReader;
 import org.apache.lucene.codecs.PostingsFormat;
@@ -94,9 +100,8 @@ final class SegmentCoreReaders {
           new SegmentReadState(cfsDir, si.info, coreFieldInfos, context);
       if (coreFieldInfos.hasPostings()) {
         final PostingsFormat format = codec.postingsFormat();
-        // Ask codec for its Fields
-        fields = format.fieldsProducer(segmentReadState);
-        assert fields != null;
+        // Lazy init: defer file opens and header checks until postings are actually accessed
+        fields = new LazyFieldsProducer(format, segmentReadState);
       } else {
         fields = null;
       }
@@ -105,30 +110,25 @@ final class SegmentCoreReaders {
       // kinda jaky to assume the codec handles the case of no norms file at all gracefully?!
 
       if (coreFieldInfos.hasNorms()) {
-        normsProducer = codec.normsFormat().normsProducer(segmentReadState);
-        assert normsProducer != null;
+        normsProducer = new LazyNormsProducer(codec.normsFormat(), segmentReadState);
       } else {
         normsProducer = null;
       }
 
       fieldsReaderOrig =
-          si.info
-              .getCodec()
-              .storedFieldsFormat()
-              .fieldsReader(cfsDir, si.info, coreFieldInfos, context);
+          new LazyStoredFieldsReader(
+              si.info.getCodec().storedFieldsFormat(), cfsDir, si.info, coreFieldInfos, context);
 
       if (coreFieldInfos.hasTermVectors()) { // open term vector files only as needed
         termVectorsReaderOrig =
-            si.info
-                .getCodec()
-                .termVectorsFormat()
-                .vectorsReader(cfsDir, si.info, coreFieldInfos, context);
+            new LazyTermVectorsReader(
+                si.info.getCodec().termVectorsFormat(), cfsDir, si.info, coreFieldInfos, context);
       } else {
         termVectorsReaderOrig = null;
       }
 
       if (coreFieldInfos.hasPointValues()) {
-        pointsReader = codec.pointsFormat().fieldsReader(segmentReadState);
+        pointsReader = new LazyPointsReader(codec.pointsFormat(), segmentReadState);
       } else {
         pointsReader = null;
       }
