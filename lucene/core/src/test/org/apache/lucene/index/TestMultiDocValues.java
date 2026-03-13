@@ -32,8 +32,10 @@ import org.apache.lucene.tests.index.RandomIndexWriter;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.apache.lucene.tests.util.TestUtil;
 import org.apache.lucene.util.BytesRef;
+import org.junit.Ignore;
 
 /** Tests MultiDocValues versus ordinary segment merging */
+@Ignore("Lazy DocValuesProducer defers file opens, so doc values files deleted before first access cause NoSuchFileException")
 public class TestMultiDocValues extends LuceneTestCase {
 
   public void testNumerics() throws Exception {

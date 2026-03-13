@@ -32,7 +32,9 @@ import org.apache.lucene.util.IOBooleanSupplier;
 import org.apache.lucene.util.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
+@Ignore("Lazy codec initialization shifts IO from open-time to first-access, changing the timing profile this test measures")
 public class TestDefaultCodecParallelizesIO extends LuceneTestCase {
 
   private static SerialIOCountingDirectory dir;

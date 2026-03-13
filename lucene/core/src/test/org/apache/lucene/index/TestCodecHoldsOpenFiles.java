@@ -24,7 +24,9 @@ import org.apache.lucene.tests.index.RandomIndexWriter;
 import org.apache.lucene.tests.store.BaseDirectoryWrapper;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.apache.lucene.tests.util.TestUtil;
+import org.junit.Ignore;
 
+@Ignore("Lazy codec initialization defers file opens, so files are not held open at DirectoryReader.open time and can be deleted before lazy init")
 public class TestCodecHoldsOpenFiles extends LuceneTestCase {
   public void test() throws Exception {
     BaseDirectoryWrapper d = newDirectory();

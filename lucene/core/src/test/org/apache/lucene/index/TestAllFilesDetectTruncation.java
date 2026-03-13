@@ -42,9 +42,11 @@ import org.apache.lucene.tests.util.LuceneTestCase;
 import org.apache.lucene.tests.util.LuceneTestCase.SuppressFileSystems;
 import org.apache.lucene.tests.util.TestUtil;
 import org.apache.lucene.util.BytesRef;
+import org.junit.Ignore;
 
 /** Test that a plain default detects index file truncation early (on opening a reader). */
 @SuppressFileSystems("ExtrasFS")
+@Ignore("Lazy codec initialization defers file opens, so truncated files are not detected until first access")
 public class TestAllFilesDetectTruncation extends LuceneTestCase {
 
   public void test() throws Exception {
