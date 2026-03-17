@@ -124,35 +124,7 @@ public final class Lucene99FlatVectorsReader extends FlatVectorsReader {
       throws IOException {
     String fileName =
         IndexFileNames.segmentFileName(state.segmentInfo.name, state.segmentSuffix, fileExtension);
-    IndexInput in = state.directory.openInput(fileName, context);
-    boolean success = false;
-    try {
-      int versionVectorData =
-          CodecUtil.checkIndexHeader(
-              in,
-              codecName,
-              Lucene99FlatVectorsFormat.VERSION_START,
-              Lucene99FlatVectorsFormat.VERSION_CURRENT,
-              state.segmentInfo.getId(),
-              state.segmentSuffix);
-      if (versionMeta != versionVectorData) {
-        throw new CorruptIndexException(
-            "Format versions mismatch: meta="
-                + versionMeta
-                + ", "
-                + codecName
-                + "="
-                + versionVectorData,
-            in);
-      }
-      CodecUtil.retrieveChecksum(in);
-      success = true;
-      return in;
-    } finally {
-      if (success == false) {
-        IOUtils.closeWhileHandlingException(in);
-      }
-    }
+    return state.directory.openInput(fileName, context);
   }
 
   private void readFields(ChecksumIndexInput meta, FieldInfos infos) throws IOException {

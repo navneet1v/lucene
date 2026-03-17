@@ -83,33 +83,6 @@ final class Lucene90NormsProducer extends NormsProducer implements Cloneable {
         IndexFileNames.segmentFileName(state.segmentInfo.name, state.segmentSuffix, dataExtension);
     // Norms have a forward-only access pattern
     data = state.directory.openInput(dataName, state.context.withHints(FileTypeHint.DATA));
-    boolean success = false;
-    try {
-      final int version2 =
-          CodecUtil.checkIndexHeader(
-              data,
-              dataCodec,
-              VERSION_START,
-              VERSION_CURRENT,
-              state.segmentInfo.getId(),
-              state.segmentSuffix);
-      if (version != version2) {
-        throw new CorruptIndexException(
-            "Format versions mismatch: meta=" + version + ",data=" + version2, data);
-      }
-
-      // NOTE: data file is too costly to verify checksum against all the bytes on open,
-      // but for now we at least verify proper structure of the checksum footer: which looks
-      // for FOOTER_MAGIC + algorithmID. This is cheap and can detect some forms of corruption
-      // such as file truncation.
-      CodecUtil.retrieveChecksum(data);
-
-      success = true;
-    } finally {
-      if (!success) {
-        IOUtils.closeWhileHandlingException(this.data);
-      }
-    }
   }
 
   @Override

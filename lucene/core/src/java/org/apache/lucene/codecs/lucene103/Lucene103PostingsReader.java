@@ -143,11 +143,6 @@ public final class Lucene103PostingsReader extends PostingsReaderBase {
     IndexInput posIn = null;
     IndexInput payIn = null;
 
-    // NOTE: these data files are too costly to verify checksum against all the bytes on open,
-    // but for now we at least verify proper structure of the checksum footer: which looks
-    // for FOOTER_MAGIC + algorithmID. This is cheap and can detect some forms of corruption
-    // such as file truncation.
-
     String docName =
         IndexFileNames.segmentFileName(
             state.segmentInfo.name, state.segmentSuffix, Lucene103PostingsFormat.DOC_EXTENSION);
@@ -155,18 +150,12 @@ public final class Lucene103PostingsReader extends PostingsReaderBase {
       docIn =
           state.directory.openInput(
               docName, state.context.withHints(FileTypeHint.DATA, FileDataHint.POSTINGS));
-      CodecUtil.checkIndexHeader(
-          docIn, DOC_CODEC, version, version, state.segmentInfo.getId(), state.segmentSuffix);
-      CodecUtil.retrieveChecksum(docIn, expectedDocFileLength);
 
       if (state.fieldInfos.hasProx()) {
         String proxName =
             IndexFileNames.segmentFileName(
                 state.segmentInfo.name, state.segmentSuffix, Lucene103PostingsFormat.POS_EXTENSION);
         posIn = state.directory.openInput(proxName, state.context.withHints(FileTypeHint.DATA));
-        CodecUtil.checkIndexHeader(
-            posIn, POS_CODEC, version, version, state.segmentInfo.getId(), state.segmentSuffix);
-        CodecUtil.retrieveChecksum(posIn, expectedPosFileLength);
 
         if (state.fieldInfos.hasPayloads() || state.fieldInfos.hasOffsets()) {
           String payName =
@@ -175,9 +164,6 @@ public final class Lucene103PostingsReader extends PostingsReaderBase {
                   state.segmentSuffix,
                   Lucene103PostingsFormat.PAY_EXTENSION);
           payIn = state.directory.openInput(payName, state.context.withHints(FileTypeHint.DATA));
-          CodecUtil.checkIndexHeader(
-              payIn, PAY_CODEC, version, version, state.segmentInfo.getId(), state.segmentSuffix);
-          CodecUtil.retrieveChecksum(payIn, expectedPayFileLength);
         }
       }
 

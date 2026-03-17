@@ -70,17 +70,6 @@ final class FieldsIndexReader extends FieldsIndex {
         dir.openInput(
             IndexFileNames.segmentFileName(name, suffix, extension),
             context.withHints(FileTypeHint.INDEX));
-    boolean success = false;
-    try {
-      CodecUtil.checkIndexHeader(
-          indexInput, codecName + "Idx", VERSION_START, VERSION_CURRENT, id, suffix);
-      CodecUtil.retrieveChecksum(indexInput);
-      success = true;
-    } finally {
-      if (success == false) {
-        indexInput.close();
-      }
-    }
     final RandomAccessInput docsSlice =
         indexInput.randomAccessSlice(docsStartPointer, docsEndPointer - docsStartPointer);
     final RandomAccessInput startPointersSlice =

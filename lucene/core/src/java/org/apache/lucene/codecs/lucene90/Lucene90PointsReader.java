@@ -62,28 +62,12 @@ public class Lucene90PointsReader extends PointsReader {
       indexIn =
           readState.directory.openInput(
               indexFileName, readState.context.withHints(FileTypeHint.INDEX));
-      CodecUtil.checkIndexHeader(
-          indexIn,
-          Lucene90PointsFormat.INDEX_CODEC_NAME,
-          Lucene90PointsFormat.VERSION_START,
-          Lucene90PointsFormat.VERSION_CURRENT,
-          readState.segmentInfo.getId(),
-          readState.segmentSuffix);
-      CodecUtil.retrieveChecksum(indexIn);
 
       // Points read whole ranges of bytes at once, so pass ReadAdvice.NORMAL to perform readahead.
       // DATA
       dataIn =
           readState.directory.openInput(
               dataFileName, readState.context.withHints(FileTypeHint.DATA));
-      CodecUtil.checkIndexHeader(
-          dataIn,
-          Lucene90PointsFormat.DATA_CODEC_NAME,
-          Lucene90PointsFormat.VERSION_START,
-          Lucene90PointsFormat.VERSION_CURRENT,
-          readState.segmentInfo.getId(),
-          readState.segmentSuffix);
-      CodecUtil.retrieveChecksum(dataIn);
 
       long indexLength = -1, dataLength = -1;
       try (ChecksumIndexInput metaIn = readState.directory.openChecksumInput(metaFileName)) {
@@ -115,10 +99,6 @@ public class Lucene90PointsReader extends PointsReader {
           CodecUtil.checkFooter(metaIn, priorE);
         }
       }
-      // At this point, checksums of the meta file have been validated so we
-      // know that indexLength and dataLength are very likely correct.
-      CodecUtil.retrieveChecksum(indexIn, indexLength);
-      CodecUtil.retrieveChecksum(dataIn, dataLength);
       success = true;
     } finally {
       if (success == false) {

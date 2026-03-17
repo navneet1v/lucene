@@ -144,22 +144,18 @@ public final class Lucene90CompressingStoredFieldsReader extends StoredFieldsRea
       // Open the data file
       fieldsStream =
           d.openInput(fieldsStreamFN, context.withHints(FileTypeHint.DATA, DataAccessHint.RANDOM));
-      version =
-          CodecUtil.checkIndexHeader(
-              fieldsStream, formatName, VERSION_START, VERSION_CURRENT, si.getId(), segmentSuffix);
-      assert CodecUtil.indexHeaderLength(formatName, segmentSuffix)
-          == fieldsStream.getFilePointer();
 
       final String metaStreamFN =
           IndexFileNames.segmentFileName(segment, segmentSuffix, META_EXTENSION);
       metaIn = d.openChecksumInput(metaStreamFN);
-      CodecUtil.checkIndexHeader(
-          metaIn,
-          INDEX_CODEC_NAME + "Meta",
-          META_VERSION_START,
-          version,
-          si.getId(),
-          segmentSuffix);
+      version =
+          CodecUtil.checkIndexHeader(
+              metaIn,
+              INDEX_CODEC_NAME + "Meta",
+              META_VERSION_START,
+              VERSION_CURRENT,
+              si.getId(),
+              segmentSuffix);
 
       chunkSize = metaIn.readVInt();
 
@@ -168,12 +164,6 @@ public final class Lucene90CompressingStoredFieldsReader extends StoredFieldsRea
       Arrays.fill(prefetchedBlockIDCache, -1);
       this.merging = false;
       this.state = new BlockState();
-
-      // NOTE: data file is too costly to verify checksum against all the bytes on open,
-      // but for now we at least verify proper structure of the checksum footer: which looks
-      // for FOOTER_MAGIC + algorithmID. This is cheap and can detect some forms of corruption
-      // such as file truncation.
-      CodecUtil.retrieveChecksum(fieldsStream);
 
       long maxPointer = -1;
       FieldsIndex indexReader = null;

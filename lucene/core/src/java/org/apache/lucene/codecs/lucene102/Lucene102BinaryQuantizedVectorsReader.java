@@ -294,35 +294,7 @@ class Lucene102BinaryQuantizedVectorsReader extends FlatVectorsReader {
       throws IOException {
     String fileName =
         IndexFileNames.segmentFileName(state.segmentInfo.name, state.segmentSuffix, fileExtension);
-    IndexInput in = state.directory.openInput(fileName, context);
-    boolean success = false;
-    try {
-      int versionVectorData =
-          CodecUtil.checkIndexHeader(
-              in,
-              codecName,
-              Lucene102BinaryQuantizedVectorsFormat.VERSION_START,
-              Lucene102BinaryQuantizedVectorsFormat.VERSION_CURRENT,
-              state.segmentInfo.getId(),
-              state.segmentSuffix);
-      if (versionMeta != versionVectorData) {
-        throw new CorruptIndexException(
-            "Format versions mismatch: meta="
-                + versionMeta
-                + ", "
-                + codecName
-                + "="
-                + versionVectorData,
-            in);
-      }
-      CodecUtil.retrieveChecksum(in);
-      success = true;
-      return in;
-    } finally {
-      if (success == false) {
-        IOUtils.closeWhileHandlingException(in);
-      }
-    }
+    return state.directory.openInput(fileName, context);
   }
 
   private FieldEntry readField(IndexInput input, FieldInfo info) throws IOException {

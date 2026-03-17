@@ -115,25 +115,10 @@ public final class Lucene103BlockTreeTermsReader extends FieldsProducer {
       String termsName =
           IndexFileNames.segmentFileName(segment, state.segmentSuffix, TERMS_EXTENSION);
       termsIn = state.directory.openInput(termsName, state.context.withHints(FileTypeHint.DATA));
-      version =
-          CodecUtil.checkIndexHeader(
-              termsIn,
-              TERMS_CODEC_NAME,
-              VERSION_START,
-              VERSION_CURRENT,
-              state.segmentInfo.getId(),
-              state.segmentSuffix);
 
       String indexName =
           IndexFileNames.segmentFileName(segment, state.segmentSuffix, TERMS_INDEX_EXTENSION);
       indexIn = state.directory.openInput(indexName, state.context.withHints(FileTypeHint.INDEX));
-      CodecUtil.checkIndexHeader(
-          indexIn,
-          TERMS_INDEX_CODEC_NAME,
-          version,
-          version,
-          state.segmentInfo.getId(),
-          state.segmentSuffix);
 
       // Read per-field details
       String metaName =
@@ -141,15 +126,17 @@ public final class Lucene103BlockTreeTermsReader extends FieldsProducer {
       IntObjectHashMap<FieldReader> fieldMap = null;
       Throwable priorE = null;
       long indexLength = -1, termsLength = -1;
+      int ver = -1;
       try (ChecksumIndexInput metaIn = state.directory.openChecksumInput(metaName)) {
         try {
-          CodecUtil.checkIndexHeader(
-              metaIn,
-              TERMS_META_CODEC_NAME,
-              version,
-              version,
-              state.segmentInfo.getId(),
-              state.segmentSuffix);
+          ver =
+              CodecUtil.checkIndexHeader(
+                  metaIn,
+                  TERMS_META_CODEC_NAME,
+                  VERSION_START,
+                  VERSION_CURRENT,
+                  state.segmentInfo.getId(),
+                  state.segmentSuffix);
           postingsReader.init(metaIn, state);
 
           final int numFields = metaIn.readVInt();
@@ -228,10 +215,7 @@ public final class Lucene103BlockTreeTermsReader extends FieldsProducer {
           }
         }
       }
-      // At this point the checksum of the meta file has been verified so the lengths are likely
-      // correct
-      CodecUtil.retrieveChecksum(indexIn, indexLength);
-      CodecUtil.retrieveChecksum(termsIn, termsLength);
+      version = ver;
       fieldInfos = state.fieldInfos;
       this.fieldMap = fieldMap;
       this.fieldList = sortFieldNames(fieldMap, state.fieldInfos);
