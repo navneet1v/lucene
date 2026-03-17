@@ -149,31 +149,21 @@ public final class Lucene90CompressingTermVectorsReader extends TermVectorsReade
           IndexFileNames.segmentFileName(segment, segmentSuffix, VECTORS_EXTENSION);
       vectorsStream =
           d.openInput(vectorsStreamFN, context.withHints(FileTypeHint.DATA, DataAccessHint.RANDOM));
-      version =
-          CodecUtil.checkIndexHeader(
-              vectorsStream, formatName, VERSION_START, VERSION_CURRENT, si.getId(), segmentSuffix);
-      assert CodecUtil.indexHeaderLength(formatName, segmentSuffix)
-          == vectorsStream.getFilePointer();
 
       final String metaStreamFN =
           IndexFileNames.segmentFileName(segment, segmentSuffix, VECTORS_META_EXTENSION);
       metaIn = d.openChecksumInput(metaStreamFN);
-      CodecUtil.checkIndexHeader(
-          metaIn,
-          VECTORS_INDEX_CODEC_NAME + "Meta",
-          META_VERSION_START,
-          version,
-          si.getId(),
-          segmentSuffix);
+      version =
+          CodecUtil.checkIndexHeader(
+              metaIn,
+              VECTORS_INDEX_CODEC_NAME + "Meta",
+              META_VERSION_START,
+              VERSION_CURRENT,
+              si.getId(),
+              segmentSuffix);
 
       packedIntsVersion = metaIn.readVInt();
       chunkSize = metaIn.readVInt();
-
-      // NOTE: data file is too costly to verify checksum against all the bytes on open,
-      // but for now we at least verify proper structure of the checksum footer: which looks
-      // for FOOTER_MAGIC + algorithmID. This is cheap and can detect some forms of corruption
-      // such as file truncation.
-      CodecUtil.retrieveChecksum(vectorsStream);
 
       FieldsIndexReader fieldsIndexReader =
           new FieldsIndexReader(
