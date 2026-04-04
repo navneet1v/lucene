@@ -20,7 +20,7 @@ package org.apache.lucene.util.hnsw;
 import static org.apache.lucene.search.DocIdSetIterator.NO_MORE_DOCS;
 
 import java.io.IOException;
-import org.apache.lucene.internal.hppc.IntCursor;
+import java.util.Arrays;
 import org.apache.lucene.internal.hppc.IntHashSet;
 import org.apache.lucene.util.BitSet;
 
@@ -85,7 +85,8 @@ public final class MergingHnswGraphBuilder extends HnswGraphBuilder {
    * @param ordMaps the ordinal maps for the graphs
    * @param totalNumberOfVectors the total number of vectors in the new graph, this should include
    *     all vectors expected to be added to the graph in the future
-   * @param initializedNodes the nodes will be initialized through the merging
+   * @param initializedNodes the nodes will be initialized through the merging, if null, all nodes
+   *     should be already initialized after {@link #updateGraph(HnswGraph, int[])} being called
    * @return a new HnswGraphBuilder that is initialized with the provided HnswGraph
    * @throws IOException when reading the graph fails
    */
@@ -100,7 +101,8 @@ public final class MergingHnswGraphBuilder extends HnswGraphBuilder {
       BitSet initializedNodes)
       throws IOException {
     OnHeapHnswGraph graph =
-        InitializedHnswGraphBuilder.initGraph(M, graphs[0], ordMaps[0], totalNumberOfVectors);
+        InitializedHnswGraphBuilder.initGraph(
+            graphs[0], ordMaps[0], totalNumberOfVectors, beamWidth, scorerSupplier);
     return new MergingHnswGraphBuilder(
         scorerSupplier, M, beamWidth, seed, graph, graphs, ordMaps, initializedNodes);
   }
@@ -146,8 +148,10 @@ public final class MergingHnswGraphBuilder extends HnswGraphBuilder {
     IntHashSet j = UpdateGraphsUtils.computeJoinSet(gS);
 
     // for nodes that in the join set, add them directly to the graph
-    for (IntCursor node : j) {
-      addGraphNode(ordMapS[node.value]);
+    int[] nodes = j.toArray();
+    Arrays.sort(nodes);
+    for (int node : nodes) {
+      addGraphNode(ordMapS[node]);
     }
 
     // for each node outside of j set:
@@ -174,7 +178,7 @@ public final class MergingHnswGraphBuilder extends HnswGraphBuilder {
           }
         }
       }
-      addGraphNodeWithEps(ordMapS[u], eps);
+      addGraphNode(ordMapS[u], eps);
     }
   }
 }

@@ -18,6 +18,7 @@ package org.apache.lucene.search;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
@@ -123,8 +124,18 @@ public class TestSeededKnnFloatVectorQuery extends BaseKnnVectorQueryTestCase {
       // Always use the default kNN format to have predictable behavior around when it hits
       // visitedLimit. This is fine since the test targets AbstractKnnVectorQuery logic, not the kNN
       // format
-      // implementation.
-      IndexWriterConfig iwc = new IndexWriterConfig().setCodec(TestUtil.getDefaultCodec());
+      // implementation. Use Lucene99HnswVectorsFormat with threshold=0 to ensure HNSW graph is
+      // always built for seeded queries.
+      IndexWriterConfig iwc =
+          new IndexWriterConfig()
+              .setCodec(
+                  TestUtil.alwaysKnnVectorsFormat(
+                      new Lucene99HnswVectorsFormat(
+                          Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN,
+                          Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH,
+                          1,
+                          null,
+                          0)));
       RandomIndexWriter w = new RandomIndexWriter(random(), d, iwc);
       for (int i = 0; i < numDocs; i++) {
         Document doc = new Document();

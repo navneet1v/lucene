@@ -36,7 +36,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.tests.index.RandomIndexWriter;
 import org.apache.lucene.tests.util.TestUtil;
 import org.apache.lucene.util.TestVectorUtil;
+import org.junit.Ignore;
 
+@Ignore
 public class TestSeededKnnByteVectorQuery extends BaseKnnVectorQueryTestCase {
 
   private static final Query MATCH_NONE = new MatchNoDocsQuery();

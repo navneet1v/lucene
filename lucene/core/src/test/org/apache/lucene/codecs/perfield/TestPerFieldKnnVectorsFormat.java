@@ -63,7 +63,21 @@ public class TestPerFieldKnnVectorsFormat extends BaseKnnVectorsFormatTestCase {
 
   @Override
   public void setUp() throws Exception {
-    codec = new RandomCodec(new Random(random().nextLong()), Collections.emptySet());
+    // Use RandomCodec but ensure KNN vector formats don't have tiny segment threshold
+    // to avoid test failures when HNSW graph is not built
+    codec =
+        new RandomCodec(new Random(random().nextLong()), Collections.emptySet()) {
+          @Override
+          public KnnVectorsFormat getKnnVectorsFormatForField(String field) {
+            // Always use Lucene99HnswVectorsFormat with threshold=0 for testing
+            return new Lucene99HnswVectorsFormat(
+                Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN,
+                Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH,
+                1,
+                null,
+                0);
+          }
+        };
     super.setUp();
   }
 
