@@ -146,7 +146,8 @@ public class Lucene99HnswScalarQuantizedVectorsFormat extends KnnVectorsFormat {
         beamWidth,
         flatVectorsFormat.fieldsWriter(state),
         numMergeWorkers,
-        mergeExec);
+        mergeExec,
+        0); // Disable tiny segment threshold for Lucene99 (legacy format)
   }
 
   @Override

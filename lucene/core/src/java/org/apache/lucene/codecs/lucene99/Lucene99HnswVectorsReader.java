@@ -310,17 +310,18 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
     final RandomVectorScorer scorer = scorerSupplier.get();
     final KnnCollector collector =
         new OrdinalTranslatedKnnCollector(knnCollector, scorer::ordToDoc);
-    HnswGraph graph = getGraph(fieldEntry);
     // Take into account if quantized? E.g. some scorer cost?
     // Use approximate cardinality as this is good enough, but ensure we don't exceed the graph
     // size as that is illogical
-    int filteredDocCount = Math.min(acceptDocs.cost(), graph.size());
+    int graphSize = (fieldEntry.vectorIndexLength() == 0) ? 0 : fieldEntry.size();
+    int filteredDocCount = Math.min(acceptDocs.cost(), graphSize);
     Bits accepted = acceptDocs.bits();
     final Bits acceptedOrds = scorer.getAcceptOrds(accepted);
-    boolean doHnsw = knnCollector.k() < scorer.maxOrd();
+    int numVectors = scorer.maxOrd();
+    boolean doHnsw = knnCollector.k() < numVectors;
     // The approximate number of vectors that would be visited if we did not filter
-    int unfilteredVisit = HnswGraphSearcher.expectedVisitedNodes(knnCollector.k(), graph.size());
-    if (unfilteredVisit >= filteredDocCount) {
+    int unfilteredVisit = HnswGraphSearcher.expectedVisitedNodes(knnCollector.k(), graphSize);
+    if (unfilteredVisit >= filteredDocCount || graphSize == 0) {
       doHnsw = false;
     }
     if (doHnsw) {
@@ -332,17 +333,18 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
       int[] ords = new int[EXHAUSTIVE_BULK_SCORE_ORDS];
       float[] scores = new float[EXHAUSTIVE_BULK_SCORE_ORDS];
       int numOrds = 0;
-      for (int i = 0; i < scorer.maxOrd(); i++) {
+      for (int i = 0; i < numVectors; i++) {
         if (acceptedOrds == null || acceptedOrds.get(i)) {
           if (knnCollector.earlyTerminated()) {
             break;
           }
           ords[numOrds++] = i;
           if (numOrds == ords.length) {
-            scorer.bulkScore(ords, scores, numOrds);
-            for (int j = 0; j < numOrds; j++) {
-              knnCollector.incVisitedCount(1);
-              knnCollector.collect(scorer.ordToDoc(ords[j]), scores[j]);
+            knnCollector.incVisitedCount(numOrds);
+            if (scorer.bulkScore(ords, scores, numOrds) > knnCollector.minCompetitiveSimilarity()) {
+              for (int j = 0; j < numOrds; j++) {
+                knnCollector.collect(scorer.ordToDoc(ords[j]), scores[j]);
+              }
             }
             numOrds = 0;
           }
@@ -350,10 +352,11 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
       }
 
       if (numOrds > 0) {
-        scorer.bulkScore(ords, scores, numOrds);
-        for (int j = 0; j < numOrds; j++) {
-          knnCollector.incVisitedCount(1);
-          knnCollector.collect(scorer.ordToDoc(ords[j]), scores[j]);
+        knnCollector.incVisitedCount(numOrds);
+        if (scorer.bulkScore(ords, scores, numOrds) > knnCollector.minCompetitiveSimilarity()) {
+          for (int j = 0; j < numOrds; j++) {
+            knnCollector.collect(scorer.ordToDoc(ords[j]), scores[j]);
+          }
         }
       }
     }
@@ -374,6 +377,9 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
   }
 
   private HnswGraph getGraph(FieldEntry entry) throws IOException {
+    if (entry.vectorIndexLength == 0) {
+      return HnswGraph.EMPTY;
+    }
     return new OffHeapHnswGraph(entry, vectorIndex);
   }
 
@@ -381,6 +387,9 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
   public Map<String, Long> getOffHeapByteSize(FieldInfo fieldInfo) {
     FieldEntry entry = getFieldEntryOrThrow(fieldInfo.name);
     var flat = flatVectorsReader.getOffHeapByteSize(fieldInfo);
+    if (entry.vectorIndexLength == 0) {
+      return flat;
+    }
     var graph = Map.of(Lucene99HnswVectorsFormat.VECTOR_INDEX_EXTENSION, entry.vectorIndexLength);
     return KnnVectorsReader.mergeOffHeapByteSizeMaps(flat, graph);
   }
@@ -586,9 +595,9 @@ public final class Lucene99HnswVectorsReader extends KnnVectorsReader
     @Override
     public NodesIterator getNodesOnLevel(int level) {
       if (level == 0) {
-        return new ArrayNodesIterator(size());
+        return new DenseNodesIterator(size());
       } else {
-        return new ArrayNodesIterator(nodesByLevel[level], nodesByLevel[level].length);
+        return new ArrayNodesIterator(nodesByLevel[level]);
       }
     }
   }

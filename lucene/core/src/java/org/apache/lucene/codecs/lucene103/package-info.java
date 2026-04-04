@@ -16,7 +16,7 @@
  */
 
 /**
- * Lucene 10.3 file format.
+ * Lucene 10.4 file format.
  *
  * <h2>Apache Lucene - Index File Formats</h2>
  *
@@ -414,11 +414,13 @@
  *   <li>In version 9.9, Vector scalar quantization support was added. Allowing the HNSW vector
  *       format to utilize int8 quantized vectors for float32 vector search.
  *   <li>In version 9.12, skip data was refactored to have only two levels: every 128 docs and every
- *       4,06 docs, and to be inlined in postings lists. This resulted in a speedup for queries that
- *       need skipping, especially conjunctions.
+ *       4,096 docs, and to be inlined in postings lists. This resulted in a speedup for queries
+ *       that need skipping, especially conjunctions.
  *   <li>In version 10.1, block encoding changed to be optimized for int[] storage instead of
  *       long[].
  *   <li>In version 10.3, the index of block tree changed to be specialized trie instead of FST.
+ *   <li>In version 10.4, the block size was increased from 128 to 256. There are now 256 and 8,192
+ *       postings between skip pointers instead of 128 and 4,096.
  * </ul>
  *
  * <a id="Limitations"></a>

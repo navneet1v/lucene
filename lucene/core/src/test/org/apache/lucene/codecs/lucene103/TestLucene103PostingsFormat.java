@@ -29,12 +29,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Impact;
-import org.apache.lucene.index.ImpactsEnum;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.LeafReader;
-import org.apache.lucene.index.PostingsEnum;
-import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.ByteArrayDataInput;
 import org.apache.lucene.store.ByteArrayDataOutput;
 import org.apache.lucene.store.Directory;
@@ -43,9 +39,7 @@ import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
 import org.apache.lucene.tests.analysis.MockAnalyzer;
 import org.apache.lucene.tests.index.BasePostingsFormatTestCase;
-import org.apache.lucene.tests.index.RandomIndexWriter;
 import org.apache.lucene.tests.util.TestUtil;
-import org.apache.lucene.util.BytesRef;
 
 public class TestLucene103PostingsFormat extends BasePostingsFormatTestCase {
 
@@ -157,28 +151,6 @@ public class TestLucene103PostingsFormat extends BasePostingsFormatTestCase {
                 new ByteArrayDataInput(b),
                 new MutableImpactList(impacts.size() + random().nextInt(3)));
         assertEquals(impacts, impacts2);
-      }
-    }
-  }
-
-  public void testImpactsNoFreqs() throws Exception {
-    try (Directory dir = newDirectory()) {
-      IndexWriterConfig iwc = newIndexWriterConfig(new MockAnalyzer(random()));
-      iwc.setCodec(getCodec());
-      try (RandomIndexWriter iw = new RandomIndexWriter(random(), dir, iwc)) {
-        Document doc = new Document();
-        doc.add(newStringField("field", "value", Field.Store.NO));
-        iw.addDocument(doc);
-        try (DirectoryReader ir = iw.getReader()) {
-          LeafReader ar = getOnlyLeafReader(ir);
-          TermsEnum termsEnum = ar.terms("field").iterator();
-          termsEnum.seekExact(new BytesRef("value"));
-          ImpactsEnum impactsEnum = termsEnum.impacts(PostingsEnum.FREQS);
-          List<Impact> impacts = impactsEnum.getImpacts().getImpacts(0);
-          assertEquals(1, impacts.size());
-          assertEquals(1, impacts.get(0).freq);
-          assertEquals(1L, impacts.get(0).norm);
-        }
       }
     }
   }

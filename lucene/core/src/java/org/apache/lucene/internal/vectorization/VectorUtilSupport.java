@@ -36,14 +36,42 @@ public interface VectorUtilSupport {
   /** Returns the dot product computed over signed bytes. */
   int dotProduct(byte[] a, byte[] b);
 
-  /** Returns the dot product over the computed bytes, assuming the values are int4 encoded. */
-  int int4DotProduct(byte[] a, boolean apacked, byte[] b, boolean bpacked);
+  /** Returns the dot product computed over unsigned half-bytes, both uncompressed. */
+  int int4DotProduct(byte[] a, byte[] b);
+
+  /** Returns the dot product computed over unsigned half-bytes, one compressed. */
+  int int4DotProductSinglePacked(byte[] unpacked, byte[] packed);
+
+  /** Returns the dot product computed over unsigned half-bytes, both compressed. */
+  int int4DotProductBothPacked(byte[] a, byte[] b);
+
+  /** Returns the dot product computed as though the bytes were unsigned. */
+  int uint8DotProduct(byte[] a, byte[] b);
 
   /** Returns the cosine similarity between the two byte vectors. */
   float cosine(byte[] a, byte[] b);
 
   /** Returns the sum of squared differences of the two byte vectors. */
   int squareDistance(byte[] a, byte[] b);
+
+  /**
+   * Returns the sum of squared differences between two unsigned half-byte vectors, both
+   * uncompressed.
+   */
+  int int4SquareDistance(byte[] a, byte[] b);
+
+  /**
+   * Returns the sum of squared differences between two unsigned half-byte vectors, one compressed.
+   */
+  int int4SquareDistanceSinglePacked(byte[] unpacked, byte[] packed);
+
+  /**
+   * Returns the sum of squared differences between two unsigned half-byte vectors, both compressed.
+   */
+  int int4SquareDistanceBothPacked(byte[] a, byte[] b);
+
+  /** Returns the sum of squared differences of the two unsigned byte vectors. */
+  int uint8SquareDistance(byte[] a, byte[] b);
 
   /**
    * Given an array {@code buffer} that is sorted between indexes {@code 0} inclusive and {@code to}
@@ -55,16 +83,25 @@ public interface VectorUtilSupport {
 
   /**
    * Compute the dot product between a quantized int4 vector and a binary quantized vector. It is
-   * assumed that the int4 quantized bits are packed in the byte array in the same way as the {@link
-   * org.apache.lucene.util.quantization.OptimizedScalarQuantizer#transposeHalfByte(byte[], byte[])}
-   * and that the binary bits are packed the same way as {@link
-   * org.apache.lucene.util.quantization.OptimizedScalarQuantizer#packAsBinary(byte[], byte[])}.
+   * assumed that the int4 quantized bits are packed in the byte array with half-byte packing and
+   * that the binary bits are packed as binary.
    *
    * @param int4Quantized half byte packed int4 quantized vector
    * @param binaryQuantized byte packed binary quantized vector
    * @return the dot product
    */
   long int4BitDotProduct(byte[] int4Quantized, byte[] binaryQuantized);
+
+  /**
+   * Compute the dot product between a quantized int4 vector and a dibit (2-bit) quantized vector.
+   * It is assumed that the int4 quantized bits are packed in the byte array with half-byte packing
+   * and that the dibit bits are packed with dibit packing.
+   *
+   * @param int4Quantized half byte packed int4 quantized vector (4 stripes)
+   * @param dibitQuantized dibit packed quantized vector (2 stripes)
+   * @return the dot product
+   */
+  long int4DibitDotProduct(byte[] int4Quantized, byte[] dibitQuantized);
 
   /**
    * Quantizes {@code vector}, putting the result into {@code dest}.
