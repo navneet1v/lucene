@@ -48,9 +48,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.tests.index.BaseKnnVectorsFormatTestCase;
 import org.apache.lucene.tests.util.TestUtil;
 import org.apache.lucene.util.quantization.OptimizedScalarQuantizer;
-import org.junit.Ignore;
 
-@Ignore
 public class TestLucene102BinaryQuantizedVectorsFormat extends BaseKnnVectorsFormatTestCase {
 
   private static final KnnVectorsFormat FORMAT = new Lucene102RWBinaryQuantizedVectorsFormat();

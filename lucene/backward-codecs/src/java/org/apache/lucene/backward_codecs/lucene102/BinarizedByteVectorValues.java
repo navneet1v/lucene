@@ -51,15 +51,15 @@ abstract class BinarizedByteVectorValues extends ByteVectorValues {
    * @return the corrective terms
    * @throws IOException if an I/O error occurs
    */
-  abstract OptimizedScalarQuantizer.QuantizationResult getCorrectiveTerms(int vectorOrd)
+  public abstract OptimizedScalarQuantizer.QuantizationResult getCorrectiveTerms(int vectorOrd)
       throws IOException;
 
   /**
    * @return the quantizer used to quantize the vectors
    */
-  abstract OptimizedScalarQuantizer getQuantizer();
+  public abstract OptimizedScalarQuantizer getQuantizer();
 
-  abstract float[] getCentroid() throws IOException;
+  public abstract float[] getCentroid() throws IOException;
 
   int discretizedDimensions() {
     return discretize(dimension(), 64);
@@ -71,7 +71,7 @@ abstract class BinarizedByteVectorValues extends ByteVectorValues {
    * @param query the query vector
    * @return a {@link VectorScorer} instance or null
    */
-  abstract VectorScorer scorer(float[] query) throws IOException;
+  public abstract VectorScorer scorer(float[] query) throws IOException;
 
   @Override
   public abstract BinarizedByteVectorValues copy() throws IOException;
