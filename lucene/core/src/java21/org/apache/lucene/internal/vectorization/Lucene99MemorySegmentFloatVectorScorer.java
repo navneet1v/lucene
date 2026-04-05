@@ -81,7 +81,8 @@ abstract sealed class Lucene99MemorySegmentFloatVectorScorer
   }
 
   @Override
-  public void bulkScore(int[] nodes, float[] scores, int numNodes) throws IOException {
+  public float bulkScore(int[] nodes, float[] scores, int numNodes) throws IOException {
+    float max = Float.NEGATIVE_INFINITY;
     int i = 0;
     final int limit = numNodes & ~3;
     for (; i < limit; i += 4) {
@@ -94,6 +95,10 @@ abstract sealed class Lucene99MemorySegmentFloatVectorScorer
       scores[i + 1] = normalizeRawScore(scratchScores[1]);
       scores[i + 2] = normalizeRawScore(scratchScores[2]);
       scores[i + 3] = normalizeRawScore(scratchScores[3]);
+      max =
+          Math.max(
+              max,
+              Math.max(Math.max(scores[i], scores[i + 1]), Math.max(scores[i + 2], scores[i + 3])));
     }
     // Handle remaining 1–3 nodes in bulk (if any)
     int remaining = numNodes - i;
@@ -103,9 +108,17 @@ abstract sealed class Lucene99MemorySegmentFloatVectorScorer
       long addr3 = (remaining > 2) ? (long) nodes[i + 2] * vectorByteSize : addr1;
       vectorOp(seg, scratchScores, addr1, addr2, addr3, addr3, query.length);
       scores[i] = normalizeRawScore(scratchScores[0]);
-      if (remaining > 1) scores[i + 1] = normalizeRawScore(scratchScores[1]);
-      if (remaining > 2) scores[i + 2] = normalizeRawScore(scratchScores[2]);
+      max = Math.max(max, scores[i]);
+      if (remaining > 1) {
+        scores[i + 1] = normalizeRawScore(scratchScores[1]);
+        max = Math.max(max, scores[i + 1]);
+      }
+      if (remaining > 2) {
+        scores[i + 2] = normalizeRawScore(scratchScores[2]);
+        max = Math.max(max, scores[i + 2]);
+      }
     }
+    return max;
   }
 
   abstract void vectorOp(

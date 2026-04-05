@@ -21,9 +21,8 @@ import static org.apache.lucene.backward_index.TestBasicBackwardsCompatibility.a
 import com.carrotsearch.randomizedtesting.annotations.ParametersFactory;
 import java.io.IOException;
 import org.apache.lucene.codecs.Codec;
-import org.apache.lucene.codecs.KnnVectorsFormat;
 import org.apache.lucene.codecs.KnnVectorsReader;
-import org.apache.lucene.codecs.lucene103.Lucene104HnswScalarQuantizedVectorsFormat;
+import org.apache.lucene.codecs.lucene104.Lucene104HnswScalarQuantizedVectorsFormat;
 import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat;
 import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsReader;
 import org.apache.lucene.codecs.perfield.PerFieldKnnVectorsFormat;
@@ -71,9 +70,7 @@ public class TestInt7HnswBackwardsCompatibility extends BackwardsCompatibilityTe
     return TestUtil.alwaysKnnVectorsFormat(
         new Lucene104HnswScalarQuantizedVectorsFormat(
             Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN,
-            Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH);
-      }
-    };
+            Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH));
   }
 
   @Override

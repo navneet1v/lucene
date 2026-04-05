@@ -41,7 +41,6 @@ module org.apache.lucene.backward_codecs {
   exports org.apache.lucene.backward_codecs.lucene100;
   exports org.apache.lucene.backward_codecs.lucene101;
   exports org.apache.lucene.backward_codecs.lucene102;
-  exports org.apache.lucene.backward_codecs.lucene103;
   exports org.apache.lucene.backward_codecs.packed;
   exports org.apache.lucene.backward_codecs.store;
 
