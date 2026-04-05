@@ -311,11 +311,11 @@ public abstract class OffHeapFloatVectorValues extends FloatVectorValues impleme
               if (matches.docID() == -1) {
                 matches.nextDoc();
               }
-              buffer.growNoCopy(nextCount);
-              docIds = ArrayUtil.growNoCopy(docIds, nextCount);
+              buffer.growNoCopy(VectorScorer.DEFAULT_BULK_BATCH_SIZE);
+              docIds = ArrayUtil.growNoCopy(docIds, VectorScorer.DEFAULT_BULK_BATCH_SIZE);
               int size = 0;
               for (int doc = matches.docID();
-                  doc != DocIdSetIterator.NO_MORE_DOCS && size < nextCount;
+                  doc != DocIdSetIterator.NO_MORE_DOCS && size < VectorScorer.DEFAULT_BULK_BATCH_SIZE;
                   doc = matches.nextDoc()) {
                 if (liveDocs == null || liveDocs.get(doc)) {
                   buffer.docs[size] = iterator.index();
