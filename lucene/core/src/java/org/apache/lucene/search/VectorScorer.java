@@ -30,6 +30,7 @@ import org.apache.lucene.util.hnsw.RandomVectorScorer;
  * @lucene.experimental
  */
 public interface VectorScorer {
+  int DEFAULT_BULK_BATCH_SIZE = 64;
 
   /**
    * Compute the score for the current document ID.
@@ -111,14 +112,15 @@ public interface VectorScorer {
           matchingDocs == null
               ? iterator
               : ConjunctionUtils.createConjunction(List.of(matchingDocs, iterator), List.of());
-      return (nextCount, liveDocs, buffer) -> {
+      return (upTo, liveDocs, buffer) -> {
+        assert upTo > 0;
         if (matches.docID() == -1) {
           matches.nextDoc();
         }
-        buffer.growNoCopy(nextCount);
+        buffer.growNoCopy(DEFAULT_BULK_BATCH_SIZE);
         int size = 0;
         for (int doc = matches.docID();
-            doc != DocIdSetIterator.NO_MORE_DOCS && size < nextCount;
+            doc < upTo && size < DEFAULT_BULK_BATCH_SIZE;
             doc = matches.nextDoc()) {
           if (liveDocs == null || liveDocs.get(doc)) {
             buffer.docs[size++] = doc;
@@ -141,16 +143,17 @@ public interface VectorScorer {
         int[] docIds = new int[0];
 
         @Override
-        public float nextDocsAndScores(
-            int nextCount, Bits liveDocs, DocAndFloatFeatureBuffer buffer) throws IOException {
+        public float nextDocsAndScores(int upTo, Bits liveDocs, DocAndFloatFeatureBuffer buffer)
+            throws IOException {
+          assert upTo > 0;
           if (matches.docID() == -1) {
             matches.nextDoc();
           }
-          buffer.growNoCopy(nextCount);
-          docIds = ArrayUtil.growNoCopy(docIds, nextCount);
+          buffer.growNoCopy(DEFAULT_BULK_BATCH_SIZE);
+          docIds = ArrayUtil.growNoCopy(docIds, DEFAULT_BULK_BATCH_SIZE);
           int size = 0;
           for (int doc = matches.docID();
-              doc != DocIdSetIterator.NO_MORE_DOCS && size < nextCount;
+              doc < upTo && size < DEFAULT_BULK_BATCH_SIZE;
               doc = matches.nextDoc()) {
             if (liveDocs == null || liveDocs.get(doc)) {
               buffer.docs[size] = iterator.index();
