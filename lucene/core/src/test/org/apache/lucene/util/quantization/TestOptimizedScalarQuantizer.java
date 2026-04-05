@@ -24,7 +24,7 @@ import static org.apache.lucene.util.quantization.OptimizedScalarQuantizer.deQua
 import static org.apache.lucene.util.quantization.OptimizedScalarQuantizer.packAsBinary;
 import static org.apache.lucene.util.quantization.OptimizedScalarQuantizer.unpackBinary;
 
-import org.apache.lucene.codecs.lucene104.Lucene104ScalarQuantizedVectorsFormat.ScalarEncoding;
+import org.apache.lucene.codecs.lucene103.Lucene104ScalarQuantizedVectorsFormat.ScalarEncoding;
 import org.apache.lucene.index.VectorSimilarityFunction;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.apache.lucene.util.VectorUtil;

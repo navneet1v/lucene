@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.lucene.codecs.lucene104;
+package org.apache.lucene.codecs.lucene103;
 
 import static org.apache.lucene.util.quantization.OptimizedScalarQuantizer.deQuantize;
 

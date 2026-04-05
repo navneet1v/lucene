@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.codecs.lucene104;
+package org.apache.lucene.codecs.lucene103;
 
 import static org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat.DEFAULT_BEAM_WIDTH;
 import static org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat.DEFAULT_MAX_CONN;
@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import org.apache.lucene.codecs.KnnVectorsFormat;
 import org.apache.lucene.codecs.KnnVectorsReader;
 import org.apache.lucene.codecs.KnnVectorsWriter;
-import org.apache.lucene.codecs.lucene104.Lucene104ScalarQuantizedVectorsFormat.ScalarEncoding;
+import org.apache.lucene.codecs.lucene103.Lucene104ScalarQuantizedVectorsFormat.ScalarEncoding;
 import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsFormat;
 import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsReader;
 import org.apache.lucene.codecs.lucene99.Lucene99HnswVectorsWriter;
@@ -39,7 +39,7 @@ import org.apache.lucene.util.hnsw.HnswGraph;
 
 /**
  * A vectors format that uses HNSW graph to store and search for vectors. But vectors are binary
- * quantized using {@link Lucene104ScalarQuantizedVectorsFormat} before being stored in the graph.
+ * quantized using {@link org.apache.lucene.codecs.lucene103.Lucene104ScalarQuantizedVectorsFormat} before being stored in the graph.
  */
 public class Lucene104HnswScalarQuantizedVectorsFormat extends KnnVectorsFormat {
 
@@ -59,7 +59,7 @@ public class Lucene104HnswScalarQuantizedVectorsFormat extends KnnVectorsFormat 
   private final int beamWidth;
 
   /** The format for storing, reading, merging vectors on disk */
-  private final Lucene104ScalarQuantizedVectorsFormat flatVectorsFormat;
+  private final org.apache.lucene.codecs.lucene103.Lucene104ScalarQuantizedVectorsFormat flatVectorsFormat;
 
   /**
    * The threshold to use to bypass HNSW graph building for tiny segments in terms of k for a graph
