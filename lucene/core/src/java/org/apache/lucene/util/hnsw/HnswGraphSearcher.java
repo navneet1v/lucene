@@ -284,28 +284,17 @@ public class HnswGraphSearcher extends AbstractHnswGraphSearcher {
       bulkScores = new float[graph.maxConn() * 2];
     }
 
-    int counter = 0;
-    int[] epsToPrefetchAndScore = new int[eps.length];
-
     for (int ep : eps) {
       if (visited.getAndSet(ep) == false) {
         if (results.earlyTerminated()) {
           break;
         }
-        epsToPrefetchAndScore[counter++] = ep;
+        float score = scorer.score(ep);
         results.incVisitedCount(1);
-      }
-    }
-    // Let's do the prefetch now
-    scorer.prefetch(epsToPrefetchAndScore, counter);
-    float[] epsScores = new float[counter];
-    scorer.bulkScore(epsToPrefetchAndScore, epsScores, counter);
-    for (int i = 0; i < counter; i++) {
-      int ep = epsToPrefetchAndScore[i];
-      float score = epsScores[i];
-      candidates.add(ep, score);
-      if (acceptOrds == null || acceptOrds.get(ep)) {
-        results.collect(ep, score);
+        candidates.add(ep, score);
+        if (acceptOrds == null || acceptOrds.get(ep)) {
+          results.collect(ep, score);
+        }
       }
     }
 
@@ -348,7 +337,6 @@ public class HnswGraphSearcher extends AbstractHnswGraphSearcher {
 
       if (numNodes > 0) {
         numNodes = (int) Math.min((long) numNodes, results.visitLimit() - results.visitedCount());
-        scorer.prefetch(bulkNodes, numNodes);
         scorer.bulkScore(bulkNodes, bulkScores, numNodes);
         results.incVisitedCount(numNodes);
         for (int i = 0; i < numNodes; i++) {
