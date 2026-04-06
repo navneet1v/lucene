@@ -21,6 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -674,6 +675,16 @@ public abstract class BaseIndexFileFormatTestCase extends LuceneTestCase {
           iw = new IndexWriter(dir, conf);
         } catch (IOException e) {
           handleFakeIOException(e, exceptionStream);
+          allowAlreadyClosed = true;
+        } catch (UncheckedIOException e) {
+          // We need to handle this exception because some changes made in LazyTermVectorReader
+          // which catches IOExceptions
+          // and cast them to UncheckedIOException
+          if (e.getCause() != null) {
+            handleFakeIOException(e.getCause(), exceptionStream);
+          } else {
+            throw e;
+          }
           allowAlreadyClosed = true;
         }
 
