@@ -35,6 +35,13 @@ public final class LazyFieldsProducer extends FieldsProducer {
   private final SegmentReadState state;
   private volatile FieldsProducer delegate;
 
+  /**
+   * Creates a new {@link LazyFieldsProducer} that defers opening the underlying fields producer
+   * until the first read operation is performed.
+   *
+   * @param format the {@link PostingsFormat} used to open the fields producer on demand
+   * @param state the {@link SegmentReadState} describing the segment to read
+   */
   public LazyFieldsProducer(PostingsFormat format, SegmentReadState state) {
     this.format = format;
     this.state = state;

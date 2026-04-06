@@ -33,6 +33,13 @@ public final class LazyNormsProducer extends NormsProducer {
   private final SegmentReadState state;
   private volatile NormsProducer delegate;
 
+  /**
+   * Creates a new {@link LazyNormsProducer} that defers opening the underlying norms producer until
+   * the first read operation is performed.
+   *
+   * @param format the {@link NormsFormat} used to open the norms producer on demand
+   * @param state the {@link SegmentReadState} describing the segment to read
+   */
   public LazyNormsProducer(NormsFormat format, SegmentReadState state) {
     this.format = format;
     this.state = state;

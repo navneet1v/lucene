@@ -31,6 +31,13 @@ public final class LazyPointsReader extends PointsReader {
   private final SegmentReadState state;
   private volatile PointsReader delegate;
 
+  /**
+   * Creates a new {@link LazyPointsReader} that defers opening the underlying points reader until
+   * the first read operation is performed.
+   *
+   * @param format the {@link PointsFormat} used to open the points reader on demand
+   * @param state the {@link SegmentReadState} describing the segment to read
+   */
   public LazyPointsReader(PointsFormat format, SegmentReadState state) {
     this.format = format;
     this.state = state;

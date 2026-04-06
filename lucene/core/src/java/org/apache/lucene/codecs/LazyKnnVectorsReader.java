@@ -36,6 +36,13 @@ public final class LazyKnnVectorsReader extends KnnVectorsReader {
   private final SegmentReadState state;
   private volatile KnnVectorsReader delegate;
 
+  /**
+   * Creates a new {@link LazyKnnVectorsReader} that defers opening the underlying knn vectors
+   * reader until the first read operation is performed.
+   *
+   * @param format the {@link KnnVectorsFormat} used to open the vectors reader on demand
+   * @param state the {@link SegmentReadState} describing the segment to read
+   */
   public LazyKnnVectorsReader(KnnVectorsFormat format, SegmentReadState state) {
     this.format = format;
     this.state = state;

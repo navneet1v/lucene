@@ -56,6 +56,14 @@ public class BKDReader extends PointValues {
   /**
    * Caller must pre-seek the provided {@link IndexInput} to the index location that {@link
    * BKDWriter#finish} returned. BKD tree is always stored off-heap.
+   *
+   * @param metaIn the {@link IndexInput} for reading BKD tree metadata (dimensions, bounds, point
+   *     count, index pointer)
+   * @param indexIn the {@link IndexInput} for reading the packed index (inner node split values and
+   *     leaf block file pointers)
+   * @param dataIn the {@link IndexInput} for reading the packed leaf block data (doc IDs and point
+   *     values)
+   * @throws IOException if there is an error reading the BKD tree structure
    */
   public BKDReader(IndexInput metaIn, IndexInput indexIn, IndexInput dataIn) throws IOException {
     version =
@@ -1152,8 +1160,20 @@ public class BKDReader extends PointValues {
    */
   public interface TwoPhaseIntersectVisitor extends IntersectVisitor {
 
+    /**
+     * Controls when prefetch IO is triggered during the first phase of BKD tree traversal.
+     *
+     * <ul>
+     *   <li>{@link #FIRST_MATCH} — prefetches only the first leaf block in a contiguous sequence of
+     *       matching blocks, relying on OS read-ahead for subsequent blocks.
+     *   <li>{@link #ALL_MATCH} — prefetches only the very first deferred block, relying on
+     *       read-ahead for all subsequent blocks.
+     * </ul>
+     */
     enum PrefetchMode {
+      /** Prefetch the first leaf block of each contiguous run of matching blocks. */
       FIRST_MATCH,
+      /** Prefetch only the very first deferred block. */
       ALL_MATCH
     }
 

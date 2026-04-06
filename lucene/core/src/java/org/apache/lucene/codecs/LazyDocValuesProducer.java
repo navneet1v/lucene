@@ -38,6 +38,13 @@ public final class LazyDocValuesProducer extends DocValuesProducer {
   private final SegmentReadState state;
   private volatile DocValuesProducer delegate;
 
+  /**
+   * Creates a new {@link LazyDocValuesProducer} that defers opening the underlying doc values
+   * producer until the first read operation is performed.
+   *
+   * @param format the {@link DocValuesFormat} used to open the doc values producer on demand
+   * @param state the {@link SegmentReadState} describing the segment to read
+   */
   public LazyDocValuesProducer(DocValuesFormat format, SegmentReadState state) {
     this.format = format;
     this.state = state;

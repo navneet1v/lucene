@@ -38,7 +38,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
-@Ignore("Lazy StoredFieldsReader.clone() wraps simulated IOException in UncheckedIOException; test expects unwrapped IOException")
+@Ignore(
+    "Lazy StoredFieldsReader.clone() wraps simulated IOException in UncheckedIOException; test expects unwrapped IOException")
 public class TestFieldsReader extends LuceneTestCase {
   private static Directory dir;
   private static Document testDoc;

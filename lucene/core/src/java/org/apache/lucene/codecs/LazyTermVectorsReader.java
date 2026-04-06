@@ -38,8 +38,22 @@ public final class LazyTermVectorsReader extends TermVectorsReader {
   private final IOContext context;
   private volatile TermVectorsReader delegate;
 
+  /**
+   * Creates a new {@link LazyTermVectorsReader} that defers opening the underlying term vectors
+   * reader until the first read operation is performed.
+   *
+   * @param format the {@link TermVectorsFormat} used to open the term vectors reader on demand
+   * @param directory the {@link Directory} containing the segment files
+   * @param si the {@link SegmentInfo} describing the segment to read
+   * @param fn the {@link FieldInfos} for the segment
+   * @param context the {@link IOContext} for opening the term vectors reader
+   */
   public LazyTermVectorsReader(
-      TermVectorsFormat format, Directory directory, SegmentInfo si, FieldInfos fn, IOContext context) {
+      TermVectorsFormat format,
+      Directory directory,
+      SegmentInfo si,
+      FieldInfos fn,
+      IOContext context) {
     this.format = format;
     this.directory = directory;
     this.si = si;

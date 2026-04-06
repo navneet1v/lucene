@@ -37,7 +37,8 @@ import org.junit.Ignore;
 
 /** Test that a plain default detects broken index headers early (on opening a reader). */
 @SuppressFileSystems("ExtrasFS")
-@Ignore("Lazy codec initialization defers file opens, so corrupted headers are not detected until first access")
+@Ignore(
+    "Lazy codec initialization defers file opens, so corrupted headers are not detected until first access")
 public class TestAllFilesCheckIndexHeader extends LuceneTestCase {
   public void test() throws Exception {
     Directory dir = newDirectory();

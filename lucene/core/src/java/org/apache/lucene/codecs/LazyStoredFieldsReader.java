@@ -38,8 +38,22 @@ public final class LazyStoredFieldsReader extends StoredFieldsReader {
   private final IOContext context;
   private volatile StoredFieldsReader delegate;
 
+  /**
+   * Creates a new {@link LazyStoredFieldsReader} that defers opening the underlying stored fields
+   * until the first read operation is performed.
+   *
+   * @param format the {@link StoredFieldsFormat} used to open the stored fields reader on demand
+   * @param directory the {@link Directory} containing the segment files
+   * @param si the {@link SegmentInfo} describing the segment to read
+   * @param fn the {@link FieldInfos} for the segment
+   * @param context the {@link IOContext} for opening the stored fields reader
+   */
   public LazyStoredFieldsReader(
-      StoredFieldsFormat format, Directory directory, SegmentInfo si, FieldInfos fn, IOContext context) {
+      StoredFieldsFormat format,
+      Directory directory,
+      SegmentInfo si,
+      FieldInfos fn,
+      IOContext context) {
     this.format = format;
     this.directory = directory;
     this.si = si;

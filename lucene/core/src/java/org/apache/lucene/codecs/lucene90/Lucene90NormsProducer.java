@@ -34,7 +34,6 @@ import org.apache.lucene.store.ChecksumIndexInput;
 import org.apache.lucene.store.FileTypeHint;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.RandomAccessInput;
-import org.apache.lucene.util.IOUtils;
 
 /** Reader for {@link Lucene90NormsFormat} */
 final class Lucene90NormsProducer extends NormsProducer implements Cloneable {

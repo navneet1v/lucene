@@ -36,7 +36,8 @@ import org.junit.Ignore;
  *
  * <p>Line 273, end=8192, subScorerDocID=11378, then more got false?
  */
-@Ignore("Lazy FieldsProducer defers file opens; MockDirectoryWrapper.close() runs CheckIndex which fails when postings files are not yet opened")
+@Ignore(
+    "Lazy FieldsProducer defers file opens; MockDirectoryWrapper.close() runs CheckIndex which fails when postings files are not yet opened")
 public class TestPrefixInBooleanQuery extends LuceneTestCase {
 
   private static final String FIELD = "name";
