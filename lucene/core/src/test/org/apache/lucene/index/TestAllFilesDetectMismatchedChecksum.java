@@ -45,7 +45,8 @@ import org.junit.Ignore;
 
 /** Test that the default codec detects mismatched checksums at open or checkIntegrity time. */
 @SuppressFileSystems("ExtrasFS")
-@Ignore("Lazy codec initialization defers file opens, so mismatched checksums are not detected until first access")
+@Ignore(
+    "Lazy codec initialization defers file opens, so mismatched checksums are not detected until first access")
 public class TestAllFilesDetectMismatchedChecksum extends LuceneTestCase {
 
   public void test() throws Exception {

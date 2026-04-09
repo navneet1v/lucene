@@ -272,6 +272,19 @@ public abstract class PointValues {
     /** Visit all the docs below the current node. */
     void visitDocIDs(IntersectVisitor visitor) throws IOException;
 
+    /**
+     * Prefetch doc IDs below the current node for deferred processing. Default: falls back to
+     * visitDocIDs.
+     */
+    default void prefetchDocIDs(IntersectVisitor visitor) throws IOException {
+      visitDocIDs(visitor);
+    }
+
+    /** Visit doc IDs at a specific leaf block position. Default: falls back to visitDocIDs. */
+    default void visitDocIDs(long position, IntersectVisitor visitor) throws IOException {
+      visitDocIDs(visitor);
+    }
+
     /** Visit all the docs and values below the current node. */
     void visitDocValues(IntersectVisitor visitor) throws IOException;
   }

@@ -50,7 +50,8 @@ import org.apache.lucene.util.IOUtils;
 import org.apache.lucene.util.NamedThreadFactory;
 import org.junit.Ignore;
 
-@Ignore("Lazy StoredFieldsReader.clone() wraps IOException in UncheckedIOException when files are deleted before lazy init")
+@Ignore(
+    "Lazy StoredFieldsReader.clone() wraps IOException in UncheckedIOException when files are deleted before lazy init")
 public class TestDirectoryReaderReopen extends LuceneTestCase {
 
   public void testReopen() throws Exception {

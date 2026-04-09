@@ -46,7 +46,8 @@ import org.junit.Ignore;
 
 /** Test that a plain default detects index file truncation early (on opening a reader). */
 @SuppressFileSystems("ExtrasFS")
-@Ignore("Lazy codec initialization defers file opens, so truncated files are not detected until first access")
+@Ignore(
+    "Lazy codec initialization defers file opens, so truncated files are not detected until first access")
 public class TestAllFilesDetectTruncation extends LuceneTestCase {
 
   public void test() throws Exception {

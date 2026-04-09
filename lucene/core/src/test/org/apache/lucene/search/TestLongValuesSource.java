@@ -34,7 +34,8 @@ import org.apache.lucene.tests.util.TestUtil;
 import org.apache.lucene.util.ArrayUtil;
 import org.junit.Ignore;
 
-@Ignore("Lazy DocValuesProducer defers file opens; MockDirectoryWrapper.close() runs CheckIndex which fails when doc values files are not yet opened")
+@Ignore(
+    "Lazy DocValuesProducer defers file opens; MockDirectoryWrapper.close() runs CheckIndex which fails when doc values files are not yet opened")
 public class TestLongValuesSource extends LuceneTestCase {
 
   private static final long LEAST_LONG_VALUE = 45L;

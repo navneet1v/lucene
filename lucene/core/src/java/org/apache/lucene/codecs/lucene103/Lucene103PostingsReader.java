@@ -17,11 +17,8 @@
 package org.apache.lucene.codecs.lucene103;
 
 import static org.apache.lucene.codecs.lucene103.ForUtil.BLOCK_SIZE;
-import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.DOC_CODEC;
 import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.LEVEL1_NUM_DOCS;
 import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.META_CODEC;
-import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.PAY_CODEC;
-import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.POS_CODEC;
 import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.TERMS_CODEC;
 import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.VERSION_CURRENT;
 import static org.apache.lucene.codecs.lucene103.Lucene103PostingsFormat.VERSION_START;

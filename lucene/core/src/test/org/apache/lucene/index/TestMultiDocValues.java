@@ -35,7 +35,8 @@ import org.apache.lucene.util.BytesRef;
 import org.junit.Ignore;
 
 /** Tests MultiDocValues versus ordinary segment merging */
-@Ignore("Lazy DocValuesProducer defers file opens, so doc values files deleted before first access cause NoSuchFileException")
+@Ignore(
+    "Lazy DocValuesProducer defers file opens, so doc values files deleted before first access cause NoSuchFileException")
 public class TestMultiDocValues extends LuceneTestCase {
 
   public void testNumerics() throws Exception {

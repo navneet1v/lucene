@@ -39,7 +39,11 @@ public final class LazyStoredFieldsReader extends StoredFieldsReader {
   private volatile StoredFieldsReader delegate;
 
   public LazyStoredFieldsReader(
-      StoredFieldsFormat format, Directory directory, SegmentInfo si, FieldInfos fn, IOContext context) {
+      StoredFieldsFormat format,
+      Directory directory,
+      SegmentInfo si,
+      FieldInfos fn,
+      IOContext context) {
     this.format = format;
     this.directory = directory;
     this.si = si;

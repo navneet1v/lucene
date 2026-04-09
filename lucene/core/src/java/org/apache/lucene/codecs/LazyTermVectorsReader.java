@@ -39,7 +39,11 @@ public final class LazyTermVectorsReader extends TermVectorsReader {
   private volatile TermVectorsReader delegate;
 
   public LazyTermVectorsReader(
-      TermVectorsFormat format, Directory directory, SegmentInfo si, FieldInfos fn, IOContext context) {
+      TermVectorsFormat format,
+      Directory directory,
+      SegmentInfo si,
+      FieldInfos fn,
+      IOContext context) {
     this.format = format;
     this.directory = directory;
     this.si = si;

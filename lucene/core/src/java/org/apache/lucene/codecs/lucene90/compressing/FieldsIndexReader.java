@@ -16,9 +16,6 @@
  */
 package org.apache.lucene.codecs.lucene90.compressing;
 
-import static org.apache.lucene.codecs.lucene90.compressing.FieldsIndexWriter.VERSION_CURRENT;
-import static org.apache.lucene.codecs.lucene90.compressing.FieldsIndexWriter.VERSION_START;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;

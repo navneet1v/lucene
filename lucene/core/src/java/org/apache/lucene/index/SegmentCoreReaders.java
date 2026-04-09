@@ -30,7 +30,6 @@ import org.apache.lucene.codecs.CompoundDirectory;
 import org.apache.lucene.codecs.FieldsProducer;
 import org.apache.lucene.codecs.KnnVectorsReader;
 import org.apache.lucene.codecs.LazyFieldsProducer;
-import org.apache.lucene.codecs.LazyKnnVectorsReader;
 import org.apache.lucene.codecs.LazyNormsProducer;
 import org.apache.lucene.codecs.LazyPointsReader;
 import org.apache.lucene.codecs.LazyStoredFieldsReader;

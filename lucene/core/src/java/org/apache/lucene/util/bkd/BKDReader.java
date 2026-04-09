@@ -591,13 +591,17 @@ public class BKDReader extends PointValues {
       addAll(visitor, false);
     }
 
-    /** prefetch DocIds below current node */
-    public void prefetchDocIDs(TwoPhaseIntersectVisitor visitor) throws IOException {
-      resetNodeDataPosition();
-      prefetchAll(visitor, false);
+    @Override
+    public void prefetchDocIDs(IntersectVisitor visitor) throws IOException {
+      if (visitor instanceof TwoPhaseIntersectVisitor twoPhase) {
+        resetNodeDataPosition();
+        prefetchAll(twoPhase, false);
+      } else {
+        visitDocIDs(visitor);
+      }
     }
 
-    /** visit Doc Ids for a leafNode at provided input position */
+    @Override
     public void visitDocIDs(long position, IntersectVisitor visitor) throws IOException {
       visitDocIDs(position, visitor, false);
     }

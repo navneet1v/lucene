@@ -149,7 +149,8 @@ public abstract class PointRangeQuery extends Query {
 
       private IntersectVisitor getIntersectVisitor(DocIdSetBuilder result) {
         if (isTwoPhaseVisitorEnabled()) {
-          return new BaseTwoPhaseIntersectVisitor(BaseTwoPhaseIntersectVisitor.getGlobalPrefetchMode()) {
+          return new BaseTwoPhaseIntersectVisitor(
+              BaseTwoPhaseIntersectVisitor.getGlobalPrefetchMode()) {
             DocIdSetBuilder.BulkAdder adder;
 
             @Override
@@ -241,7 +242,8 @@ public abstract class PointRangeQuery extends Query {
       /** Create a visitor that sets documents that do NOT match the range. */
       private IntersectVisitor getInverseIntersectVisitor(FixedBitSet result, long[] cost) {
         if (isTwoPhaseVisitorEnabled()) {
-          return new BaseTwoPhaseIntersectVisitor(BaseTwoPhaseIntersectVisitor.getGlobalPrefetchMode()) {
+          return new BaseTwoPhaseIntersectVisitor(
+              BaseTwoPhaseIntersectVisitor.getGlobalPrefetchMode()) {
             @Override
             public void visit(int docID) {
               result.set(docID);
